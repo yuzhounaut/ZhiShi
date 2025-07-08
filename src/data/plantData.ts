@@ -172,29 +172,111 @@ export const plantFamilies: PlantFamily[] = [
   }
 ];
 
-export const quizQuestions = [
+// --- New Quiz Question Data Structure and Examples ---
+
+export interface QuizQuestion {
+  familyId: string; // Corresponds to PlantFamily id
+  questionId: string; // Unique ID for the question
+  prompt: string; // The question text presented to the user
+  targetFeatureCategory: string; // e.g., "叶", "花", "果实", "茎" - helps guide the user
+  acceptableKeywords: string[]; // Array of correct keyword answers (case-insensitive)
+  points: number; // Points awarded for a correct answer
+  imageUrl?: string; // Optional image URL for the question
+}
+
+export const quizQuestions: QuizQuestion[] = [
+  // Rosaceae (蔷薇科)
   {
-    id: '1',
-    familyId: 'rosaceae',
-    image: '/images/quiz/rose_question.jpg',
-    correctAnswers: ['5片花瓣', '雄蕊多数', '有托叶'],
-    hint: '观察花瓣数量和雄蕊特征',
-    explanation: '蔷薇科植物通常具有5片花瓣，雄蕊多数，叶片多有托叶。'
+    familyId: "rosaceae",
+    questionId: "ros_flower_petals",
+    prompt: "蔷薇科植物的花瓣通常有多少片？（说出主要数量）",
+    targetFeatureCategory: "花",
+    acceptableKeywords: ["5", "五"],
+    points: 10,
   },
   {
-    id: '2',
-    familyId: 'leguminosae',
-    image: '/images/quiz/bean_question.jpg',
-    correctAnswers: ['蝶形花冠', '荚果', '复叶'],
-    hint: '注意花冠形态和果实类型',
-    explanation: '豆科植物具有特殊的蝶形花冠，果实为荚果，叶片多为复叶。'
+    familyId: "rosaceae",
+    questionId: "ros_fruit_example",
+    prompt: "请列举一种蔷薇科常见的果实类型名称。",
+    targetFeatureCategory: "果实",
+    acceptableKeywords: ["梨果", "核果", "聚合果", "蔷薇果", "苹果", "桃", "杏"], // 增加了具体例子
+    points: 10,
+  },
+  // Leguminosae (豆科) - assuming id is 'leguminosae' as per plantFamilies
+  {
+    familyId: "leguminosae",
+    questionId: "fab_leaf_type",
+    prompt: "豆科植物常见的叶片（整体结构）是什么类型？",
+    targetFeatureCategory: "叶",
+    acceptableKeywords: ["复叶", "羽状复叶", "掌状复叶", "三出复叶"],
+    points: 10,
   },
   {
-    id: '3',
-    familyId: 'compositae',
-    image: '/images/quiz/sunflower_question.jpg',
-    correctAnswers: ['头状花序', '聚药雄蕊', '瘦果'],
-    hint: '观察花序类型和果实特征',
-    explanation: '菊科植物的特征是头状花序，雄蕊聚药，果实为瘦果。'
+    familyId: "leguminosae",
+    questionId: "fab_fruit_type",
+    prompt: "豆科植物最特征性的果实类型是什么？",
+    targetFeatureCategory: "果实",
+    acceptableKeywords: ["荚果"],
+    points: 15,
+  },
+  // Compositae (菊科) - assuming id is 'compositae'
+  {
+    familyId: "compositae",
+    questionId: "ast_inflorescence",
+    prompt: "菊科植物特有的花序类型叫什么？",
+    targetFeatureCategory: "花序",
+    acceptableKeywords: ["头状花序", "头状"],
+    points: 15,
+  },
+  {
+    familyId: "compositae",
+    questionId: "ast_fruit_type",
+    prompt: "菊科植物的果实通常是什么类型？",
+    targetFeatureCategory: "果实",
+    acceptableKeywords: ["瘦果"],
+    points: 10,
+  },
+  // Labiatae (唇形科) - assuming id is 'labiatae'
+  {
+    familyId: "labiatae",
+    questionId: "lam_stem_shape",
+    prompt: "唇形科植物的茎在横切面上通常是什么形状？",
+    targetFeatureCategory: "茎",
+    acceptableKeywords: ["四棱形", "四棱", "方茎"],
+    points: 10,
+  },
+  {
+    familyId: "labiatae",
+    questionId: "lam_corolla_shape",
+    prompt: "唇形科植物的花冠是什么样的特殊形态？",
+    targetFeatureCategory: "花",
+    acceptableKeywords: ["唇形", "二唇形"],
+    points: 10,
+  },
+  // Cruciferae (十字花科) - assuming id is 'cruciferae'
+  {
+    familyId: "cruciferae",
+    questionId: "cru_flower_petals",
+    prompt: "十字花科植物的花瓣有多少片，呈什么形状排列？（可分开回答或一起回答）",
+    targetFeatureCategory: "花",
+    acceptableKeywords: ["4", "四", "十字形", "十字"],
+    points: 10,
+  },
+  // Solanaceae (茄科)
+  {
+    familyId: "solanaceae",
+    questionId: "sol_calyx_persistence",
+    prompt: "茄科植物的花萼在果实期通常会怎样？（描述其状态）",
+    targetFeatureCategory: "花萼",
+    acceptableKeywords: ["宿存", "增大", "宿存并增大"],
+    points: 10,
+  },
+  {
+    familyId: "solanaceae",
+    questionId: "sol_fruit_example",
+    prompt: "请说出一种茄科常见的果实类型。",
+    targetFeatureCategory: "果实",
+    acceptableKeywords: ["浆果", "蒴果"],
+    points: 10,
   }
 ];

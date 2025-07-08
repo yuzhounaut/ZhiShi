@@ -8,6 +8,7 @@ import Quiz from './pages/Quiz';
 import PlantIdentifier from './pages/PlantIdentifier';
 import Encyclopedia from './pages/Encyclopedia';
 import NotFound from './pages/NotFound';
+import QuizSelectionPage from './pages/QuizSelectionPage'; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,7 @@ const App = () => (
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/quiz" element={<Home />} />
+          <Route path="/quiz" element={<QuizSelectionPage />} /> {/* Changed to QuizSelectionPage */}
           <Route path="/quiz/:familyId" element={<Quiz />} />
           <Route path="/identify" element={<PlantIdentifier />} />
           <Route path="/encyclopedia" element={<Encyclopedia />} />
