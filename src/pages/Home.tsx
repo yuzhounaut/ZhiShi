@@ -76,7 +76,7 @@ const Home = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">浏览详细的植物科属信息，了解更多植物知识。</p>
+                  <p className="text-gray-600">浏览详细的植物科属信息，了解更多植物知识</p>
                 </CardContent>
               </Card>
             </Link>
@@ -89,7 +89,7 @@ const Home = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">通过互动问答巩固您的植物学知识，成为植物达人。</p>
+                  <p className="text-gray-600">通过互动问答巩固您的植物学知识</p>
                 </CardContent>
               </Card>
             </Link>
