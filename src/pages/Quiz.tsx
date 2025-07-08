@@ -151,29 +151,29 @@ const Quiz = () => {
 
   if (quizCompleted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-100 to-teal-100 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-lime-100 to-green-200 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-lg shadow-2xl text-center">
-          <CardHeader className="bg-green-600 text-white rounded-t-lg py-8">
-            <Award className="h-20 w-20 mx-auto text-yellow-300 mb-3" />
+          <CardHeader className="bg-lime-600 text-white rounded-t-lg py-8">
+            <Award className="h-20 w-20 mx-auto text-amber-300 mb-3" />
             <CardTitle className="text-4xl font-bold">挑战完成!</CardTitle>
-            <CardDescription className="text-green-50 text-lg mt-1">
+            <CardDescription className="text-lime-50 text-lg mt-1">
               您已完成对 <span className="font-semibold">{family.chineseName}</span> 科的知识挑战。
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6 sm:p-8">
+          <CardContent className="p-6 sm:p-8 bg-white rounded-b-lg">
             <p className="text-6xl font-bold text-gray-800 my-4">
               {score} <span className="text-3xl text-gray-500">/ {totalPossiblePoints}分</span>
             </p>
-            <Progress value={(score/totalPossiblePoints)*100} className="w-3/4 mx-auto h-3 mb-6" />
+            <Progress value={(score/totalPossiblePoints)*100} className="w-3/4 mx-auto h-3 mb-6 [&>div]:bg-lime-500" />
             <p className="text-gray-700 mb-8 text-lg">
               {score === totalPossiblePoints ? "太棒了，获得了满分！知识渊博！🎉" : (score >= totalPossiblePoints * 0.7 ? "表现优异，继续加油！👍" : "继续努力，下次会更好！💪")}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Button onClick={restartQuiz} className="bg-green-500 hover:bg-green-600 text-white text-lg py-3">
+              <Button onClick={restartQuiz} className="bg-green-600 hover:bg-green-700 text-white text-lg py-3">
                 <RotateCcw className="mr-2 h-5 w-5" />
                 再试一次
               </Button>
-              <Button variant="outline" onClick={() => navigate('/quiz')} className="text-green-600 border-green-500 hover:bg-green-50 text-lg py-3">
+              <Button variant="outline" onClick={() => navigate('/quiz')} className="text-lime-700 border-lime-500 hover:bg-lime-50 text-lg py-3">
                 <ArrowLeft className="mr-2 h-5 w-5" />
                 选择其他科
               </Button>
@@ -201,33 +201,33 @@ const Quiz = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 sm:p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-lime-50 p-4 sm:p-6 flex flex-col items-center">
       <div className="w-full max-w-3xl">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <Button variant="ghost" onClick={() => navigate('/quiz')} className="text-gray-700 hover:text-indigo-700 px-2">
+            <Button variant="ghost" onClick={() => navigate('/quiz')} className="text-gray-700 hover:text-green-700 px-2">
               <ArrowLeft className="h-5 w-5 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">返回选择</span>
             </Button>
-            <h1 className="text-xl sm:text-2xl font-bold text-center text-indigo-800 flex-grow px-2 truncate">
+            <h1 className="text-xl sm:text-2xl font-bold text-center text-green-800 flex-grow px-2 truncate">
               {family.chineseName} <span className="text-gray-500 font-normal hidden sm:inline">({family.latinName})</span>
             </h1>
-            <Badge variant="secondary" className="text-sm bg-indigo-200 text-indigo-900 whitespace-nowrap py-1.5 px-3">
+            <Badge variant="secondary" className="text-sm bg-yellow-100 text-yellow-900 whitespace-nowrap py-1.5 px-3">
               得分: {score}
             </Badge>
           </div>
-          <Progress value={progress} className="h-2.5 rounded-full" />
+          <Progress value={progress} className="h-2.5 rounded-full [&>div]:bg-green-500" />
         </div>
 
         {/* Question Card */}
-        <Card className="shadow-xl overflow-hidden border-indigo-200">
-          <CardHeader className="bg-indigo-50 p-5 sm:p-6 border-b border-indigo-200">
+        <Card className="shadow-xl overflow-hidden border-yellow-300">
+          <CardHeader className="bg-yellow-50 p-5 sm:p-6 border-b border-yellow-200">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-2">
-              <CardTitle className="text-lg sm:text-xl text-indigo-900 font-semibold">
+              <CardTitle className="text-lg sm:text-xl text-green-900 font-semibold">
                 题目 {currentQuestionIndex + 1} / {currentFamilyQuestions.length}
               </CardTitle>
-              <Badge variant="outline" className="border-indigo-400 text-indigo-700 text-xs sm:text-sm py-1 px-2.5 self-start sm:self-center">
+              <Badge variant="outline" className="border-yellow-400 text-yellow-700 text-xs sm:text-sm py-1 px-2.5 self-start sm:self-center">
                 {currentQuestion.targetFeatureCategory} - {currentQuestion.points}分
               </Badge>
             </div>
@@ -255,15 +255,15 @@ const Quiz = () => {
                 onChange={(e) => setUserAnswer(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && !showFeedback && userAnswer.trim() !== '' && handleSubmitAnswer()}
                 disabled={showFeedback}
-                className="text-base py-3 px-4 h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                className="text-base py-3 px-4 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
                 aria-label="答案输入框"
               />
             </div>
 
             {showFeedback && lastAnswerFeedback && currentQuestion && (
-              <Alert className={`mb-5 p-4 rounded-md ${lastAnswerFeedback.pointsAwarded > 0 ? (lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "bg-green-50 border-green-400 text-green-800" : "bg-yellow-50 border-yellow-400 text-yellow-800") : "bg-red-50 border-red-400 text-red-800"}`}>
+              <Alert className={`mb-5 p-4 rounded-md ${lastAnswerFeedback.pointsAwarded > 0 ? (lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "bg-green-100 border-green-500 text-green-800" : "bg-amber-50 border-amber-400 text-amber-800") : "bg-red-50 border-red-400 text-red-800"}`}>
                 <div className="flex items-center">
-                  {lastAnswerFeedback.pointsAwarded > 0 ? <CheckCircle className={`h-6 w-6 ${lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "text-green-600" : "text-yellow-600"} mr-3`} /> : <XCircle className="h-6 w-6 text-red-600 mr-3" />}
+                  {lastAnswerFeedback.pointsAwarded > 0 ? <CheckCircle className={`h-6 w-6 ${lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "text-green-600" : "text-amber-600"} mr-3`} /> : <XCircle className="h-6 w-6 text-red-600 mr-3" />}
                   <div className="flex-grow">
                     <AlertTitle className="font-bold text-lg">
                       {lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "回答完美！" : (lastAnswerFeedback.pointsAwarded > 0 ? "部分正确！" : "有待改进")}
@@ -284,13 +284,13 @@ const Quiz = () => {
               {!showFeedback ? (
                 <Button 
                   onClick={handleSubmitAnswer}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-lg py-3 rounded-md"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white text-lg py-3 rounded-md"
                   disabled={userAnswer.trim() === ''}
                 >
                   提交答案
                 </Button>
               ) : (
-                <Button onClick={handleNextQuestion} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-lg py-3 rounded-md">
+                <Button onClick={handleNextQuestion} className="flex-1 bg-lime-600 hover:bg-lime-700 text-white text-lg py-3 rounded-md">
                   {currentQuestionIndex < currentFamilyQuestions.length - 1 ? '下一题' : '查看总分'}
                 </Button>
               )}
