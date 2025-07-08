@@ -1,267 +1,291 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { plantFamilies, quizQuestions } from '@/data/plantData';
-import { ArrowLeft, Check, X, Lightbulb, RotateCcw } from 'lucide-react';
+import { plantFamilies, quizQuestions, QuizQuestion } from '@/data/plantData';
+import { ArrowLeft, CheckCircle, XCircle, Lightbulb, RotateCcw, Award } from 'lucide-react';
 
 const Quiz = () => {
-  const { familyId } = useParams();
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
-  const [currentAnswer, setCurrentAnswer] = useState('');
-  const [showResult, setShowResult] = useState(false);
-  const [score, setScore] = useState(0);
-  const [showHint, setShowHint] = useState(false);
+  const { familyId } = useParams<{ familyId: string }>();
+  const navigate = useNavigate();
 
-  const family = plantFamilies.find(f => f.id === familyId);
-  const questions = quizQuestions.filter(q => q.familyId === familyId);
+  const [currentFamilyQuestions, setCurrentFamilyQuestions] = useState<QuizQuestion[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [score, setScore] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const family = useMemo(() => plantFamilies.find(f => f.id === familyId), [familyId]);
 
   useEffect(() => {
-    if (!family || questions.length === 0) {
-      return;
+    if (familyId) {
+      const questionsForFamily = quizQuestions.filter(q => q.familyId === familyId);
+      setCurrentFamilyQuestions(questionsForFamily);
+      // Reset quiz state when familyId changes or component mounts for a new family
+      setCurrentQuestionIndex(0);
+      setUserAnswer('');
+      setScore(0);
+      setShowFeedback(false);
+      setIsCorrect(null);
+      setQuizCompleted(false);
     }
-  }, [family, questions]);
+  }, [familyId]);
 
-  if (!family || questions.length === 0) {
+  const currentQuestion = useMemo(() => {
+    if (currentFamilyQuestions.length > 0 && currentQuestionIndex < currentFamilyQuestions.length) {
+      return currentFamilyQuestions[currentQuestionIndex];
+    }
+    return null;
+  }, [currentFamilyQuestions, currentQuestionIndex]);
+
+  const totalPossiblePoints = useMemo(() => {
+    return currentFamilyQuestions.reduce((sum, q) => sum + q.points, 0);
+  }, [currentFamilyQuestions]);
+
+  useEffect(() => {
+    if (!showFeedback && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [currentQuestionIndex, showFeedback]);
+
+
+  if (!family) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md mx-auto">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-bold mb-4">题库建设中</h2>
-            <p className="text-gray-600 mb-4">该植物科的题目正在准备中，敬请期待！</p>
-            <Link to="/">
-              <Button>返回首页</Button>
-            </Link>
-          </CardContent>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center py-8">
+          <XCircle className="h-16 w-16 mx-auto text-red-500 mb-4" />
+          <CardTitle className="text-2xl font-bold text-red-700 mb-2">加载错误</CardTitle>
+          <CardDescription className="text-gray-600 mb-6">
+            未能找到ID为 "{familyId}" 的植物科信息。
+          </CardDescription>
+          <Button onClick={() => navigate('/quiz')} variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> 返回题目选择
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (currentFamilyQuestions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-lime-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center py-8">
+          <Lightbulb className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
+          <CardTitle className="text-2xl font-bold text-yellow-700 mb-2">题库建设中</CardTitle>
+          <CardDescription className="text-gray-600 mb-6">
+            该植物科 ({family.chineseName}) 的题目正在快马加鞭准备中，敬请期待！
+          </CardDescription>
+          <Button onClick={() => navigate('/quiz')} variant="outline">
+             <ArrowLeft className="mr-2 h-4 w-4" /> 返回题目选择
+          </Button>
         </Card>
       </div>
     );
   }
 
   const handleSubmitAnswer = () => {
-    if (!currentAnswer.trim()) return;
+    if (!currentQuestion || userAnswer.trim() === '') return;
 
-    const question = questions[currentQuestion];
-    const isCorrect = question.correctAnswers.some(answer => 
-      currentAnswer.toLowerCase().includes(answer.toLowerCase()) ||
-      answer.toLowerCase().includes(currentAnswer.toLowerCase())
+    const answerLower = userAnswer.trim().toLowerCase();
+    const correct = currentQuestion.acceptableKeywords.some(keyword =>
+      answerLower.includes(keyword.toLowerCase())
     );
 
-    const newAnswers = [...userAnswers, currentAnswer];
-    setUserAnswers(newAnswers);
-
-    if (isCorrect) {
-      setScore(score + 1);
+    setIsCorrect(correct);
+    if (correct) {
+      setScore(score + currentQuestion.points);
     }
+    setShowFeedback(true);
+  };
 
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setCurrentAnswer('');
-      setShowHint(false);
+  const handleNextQuestion = () => {
+    setUserAnswer('');
+    setShowFeedback(false);
+    setIsCorrect(null);
+    if (currentQuestionIndex < currentFamilyQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setShowResult(true);
+      setQuizCompleted(true);
     }
   };
 
-  const resetQuiz = () => {
-    setCurrentQuestion(0);
-    setUserAnswers([]);
-    setCurrentAnswer('');
-    setShowResult(false);
+  const restartQuiz = () => {
+    setCurrentQuestionIndex(0);
+    setUserAnswer('');
     setScore(0);
-    setShowHint(false);
+    setShowFeedback(false);
+    setIsCorrect(null);
+    setQuizCompleted(false);
   };
 
-  const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const progress = currentFamilyQuestions.length > 0 ? ((currentQuestionIndex + (showFeedback ? 1: 0) ) / currentFamilyQuestions.length) * 100 : 0;
 
-  if (showResult) {
+
+  if (quizCompleted) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <Card className="mb-8">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-green-800">
-                {family.chineseName} - 挑战完成！
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center mb-8">
-                <div className="text-6xl font-bold text-green-600 mb-4">
-                  {score}/{questions.length}
-                </div>
-                <p className="text-xl text-gray-600">
-                  正确率: {Math.round((score / questions.length) * 100)}%
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">答案解析</h3>
-                {questions.map((question, index) => (
-                  <div key={question.id} className="border rounded-lg p-4 bg-white">
-                    <div className="flex items-center mb-2">
-                      <span className="text-sm font-medium text-gray-500 mr-2">题目 {index + 1}:</span>
-                      {question.correctAnswers.some(answer => 
-                        userAnswers[index]?.toLowerCase().includes(answer.toLowerCase()) ||
-                        answer.toLowerCase().includes(userAnswers[index]?.toLowerCase())
-                      ) ? (
-                        <Check className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <X className="h-4 w-4 text-red-600" />
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">你的答案: {userAnswers[index] || '未回答'}</p>
-                    <p className="text-sm text-green-700 mb-2">
-                      正确答案: {question.correctAnswers.join(', ')}
-                    </p>
-                    <p className="text-sm text-gray-500">{question.explanation}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <Button onClick={resetQuiz} className="bg-green-600 hover:bg-green-700">
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  重新挑战
-                </Button>
-                <Link to="/">
-                  <Button variant="outline">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    返回首页
-                  </Button>
-                </Link>
-                <Link to="/encyclopedia">
-                  <Button variant="outline">
-                    📱 查看植物图鉴
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-green-100 to-teal-100 flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-lg shadow-2xl text-center">
+          <CardHeader className="bg-green-600 text-white rounded-t-lg py-8">
+            <Award className="h-20 w-20 mx-auto text-yellow-300 mb-3" />
+            <CardTitle className="text-4xl font-bold">挑战完成!</CardTitle>
+            <CardDescription className="text-green-50 text-lg mt-1">
+              您已完成对 <span className="font-semibold">{family.chineseName}</span> 科的知识挑战。
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 sm:p-8">
+            <p className="text-6xl font-bold text-gray-800 my-4">
+              {score} <span className="text-3xl text-gray-500">/ {totalPossiblePoints}分</span>
+            </p>
+            <Progress value={(score/totalPossiblePoints)*100} className="w-3/4 mx-auto h-3 mb-6" />
+            <p className="text-gray-700 mb-8 text-lg">
+              {score === totalPossiblePoints ? "太棒了，获得了满分！知识渊博！🎉" : (score >= totalPossiblePoints * 0.7 ? "表现优异，继续加油！👍" : "继续努力，下次会更好！💪")}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Button onClick={restartQuiz} className="bg-green-500 hover:bg-green-600 text-white text-lg py-3">
+                <RotateCcw className="mr-2 h-5 w-5" />
+                再试一次
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/quiz')} className="text-green-600 border-green-500 hover:bg-green-50 text-lg py-3">
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                选择其他科
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  const question = questions[currentQuestion];
+  if (!currentQuestion) {
+    // This case should ideally be covered by the initial checks, but as a fallback:
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center py-8">
+         <XCircle className="h-16 w-16 mx-auto text-red-500 mb-4" />
+          <CardTitle className="text-2xl font-bold text-red-700 mb-2">错误</CardTitle>
+          <CardDescription className="text-gray-600 mb-6">无法加载当前题目，请稍后再试。</CardDescription>
+          <Button onClick={() => navigate('/quiz')} variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> 返回题目选择
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 sm:p-6 flex flex-col items-center">
+      <div className="w-full max-w-3xl">
         {/* Header */}
-        <div className="mb-8">
-          <Link to="/" className="inline-flex items-center text-green-600 hover:text-green-700 mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回首页
-          </Link>
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {family.chineseName} 挑战
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <Button variant="ghost" onClick={() => navigate('/quiz')} className="text-gray-700 hover:text-indigo-700 px-2">
+              <ArrowLeft className="h-5 w-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">返回选择</span>
+            </Button>
+            <h1 className="text-xl sm:text-2xl font-bold text-center text-indigo-800 flex-grow px-2 truncate">
+              {family.chineseName} <span className="text-gray-500 font-normal hidden sm:inline">({family.latinName})</span>
             </h1>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              {currentQuestion + 1}/{questions.length}
+            <Badge variant="secondary" className="text-sm bg-indigo-200 text-indigo-900 whitespace-nowrap py-1.5 px-3">
+              得分: {score}
             </Badge>
           </div>
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-2.5 rounded-full" />
         </div>
 
         {/* Question Card */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-lg">
-              题目 {currentQuestion + 1}: 观察下图，描述你看到的植物特征
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Placeholder for plant image */}
-            <div className="w-full h-64 bg-gray-200 rounded-lg mb-6 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-4xl mb-2">🌿</div>
-                <p className="text-gray-600">植物特征图片</p>
-                <p className="text-sm text-gray-500">({family.chineseName})</p>
-              </div>
+        <Card className="shadow-xl overflow-hidden border-indigo-200">
+          <CardHeader className="bg-indigo-50 p-5 sm:p-6 border-b border-indigo-200">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-2">
+              <CardTitle className="text-lg sm:text-xl text-indigo-900 font-semibold">
+                题目 {currentQuestionIndex + 1} / {currentFamilyQuestions.length}
+              </CardTitle>
+              <Badge variant="outline" className="border-indigo-400 text-indigo-700 text-xs sm:text-sm py-1 px-2.5 self-start sm:self-center">
+                {currentQuestion.targetFeatureCategory} - {currentQuestion.points}分
+              </Badge>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="answer" className="block text-sm font-medium text-gray-700 mb-2">
-                  请输入你观察到的植物特征（多个特征请用逗号分隔）：
-                </label>
-                <Input
-                  id="answer"
-                  value={currentAnswer}
-                  onChange={(e) => setCurrentAnswer(e.target.value)}
-                  placeholder="例如：5片花瓣，雄蕊多数，有托叶..."
-                  className="w-full"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSubmitAnswer()}
+            {currentQuestion.imageUrl && (
+              <div className="my-4 rounded-lg overflow-hidden shadow-md aspect-video bg-gray-100 flex items-center justify-center">
+                <img
+                  src={currentQuestion.imageUrl}
+                  alt={`特征: ${currentQuestion.targetFeatureCategory} - ${family.chineseName}`}
+                  className="w-full h-full object-contain max-h-64 sm:max-h-80"
                 />
               </div>
+            )}
+            <p className="text-md sm:text-lg text-gray-800 mt-3 font-medium leading-relaxed">
+              {currentQuestion.prompt}
+            </p>
+          </CardHeader>
 
-              {showHint && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center mb-2">
-                    <Lightbulb className="h-4 w-4 text-blue-600 mr-2" />
-                    <span className="font-medium text-blue-800">提示</span>
+          <CardContent className="p-5 sm:p-6 bg-white">
+            <div className="space-y-4 mb-6">
+              <Input
+                ref={inputRef}
+                type="text"
+                placeholder="输入您认为正确的特征关键词..."
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && !showFeedback && userAnswer.trim() !== '' && handleSubmitAnswer()}
+                disabled={showFeedback}
+                className="text-base py-3 px-4 h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                aria-label="答案输入框"
+              />
+            </div>
+
+            {showFeedback && (
+              <Alert className={`mb-5 p-4 rounded-md ${isCorrect ? "bg-green-50 border-green-400 text-green-800" : "bg-red-50 border-red-400 text-red-800"}`}>
+                <div className="flex items-center">
+                  {isCorrect ? <CheckCircle className="h-6 w-6 text-green-600 mr-3" /> : <XCircle className="h-6 w-6 text-red-600 mr-3" />}
+                  <div className="flex-grow">
+                    <AlertTitle className="font-bold text-lg">
+                      {isCorrect ? "回答正确！" : "回答错误"}
+                    </AlertTitle>
+                    <AlertDescription className="text-sm mt-1">
+                      {isCorrect ? `太棒了！获得 ${currentQuestion.points} 分！` :
+                       currentQuestion.acceptableKeywords.length > 0 ? `提示: 正确关键词可能包括 "${currentQuestion.acceptableKeywords.slice(0,2).join('", "')}" 等。` : "请再接再厉！"}
+                    </AlertDescription>
                   </div>
-                  <p className="text-blue-700 text-sm">{question.hint}</p>
                 </div>
-              )}
+              </Alert>
+            )}
 
-              <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {!showFeedback ? (
                 <Button 
                   onClick={handleSubmitAnswer}
-                  disabled={!currentAnswer.trim()}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-lg py-3 rounded-md"
+                  disabled={userAnswer.trim() === ''}
                 >
                   提交答案
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowHint(!showHint)}
-                >
-                  <Lightbulb className="h-4 w-4 mr-2" />
-                  {showHint ? '隐藏提示' : '显示提示'}
+              ) : (
+                <Button onClick={handleNextQuestion} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-lg py-3 rounded-md">
+                  {currentQuestionIndex < currentFamilyQuestions.length - 1 ? '下一题' : '查看总分'}
                 </Button>
-              </div>
+              )}
             </div>
+             {/* Hint button can be added here if hints are implemented in data */}
           </CardContent>
         </Card>
 
-        {/* Family Info Card */}
-        <Card>
+        {/* Optional: Display Family Info during Quiz */}
+        {/*
+        <Card className="mt-8 border-gray-200">
           <CardHeader>
-            <CardTitle className="text-lg text-green-800">{family.chineseName} ({family.latinName})</CardTitle>
+            <CardTitle className="text-base text-gray-700">{family.chineseName} ({family.latinName}) 简介</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">{family.description}</p>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">主要特征：</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  {family.characteristics.map((char, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-green-600 mr-2">•</span>
-                      {char}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">常见植物：</h4>
-                <div className="flex flex-wrap gap-1">
-                  {family.commonSpecies.map((species) => (
-                    <Badge key={species} variant="outline" className="text-xs">
-                      {species}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <CardContent className="text-sm text-gray-600">
+            <p className="line-clamp-3">{family.description}</p>
           </CardContent>
         </Card>
+        */}
       </div>
     </div>
   );
