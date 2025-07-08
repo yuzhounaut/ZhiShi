@@ -11,10 +11,10 @@ const QuizSelectionPage = () => {
   const familiesToDisplay = plantFamilies;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-lime-100 to-green-100 py-8 px-4">
       <div className="container mx-auto max-w-5xl">
         <header className="text-center mb-12">
-          <BookOpenText className="h-16 w-16 mx-auto text-blue-600 mb-4" />
+          <BookOpenText className="h-16 w-16 mx-auto text-green-700 mb-4" />
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
             知识挑战
           </h1>
@@ -30,14 +30,14 @@ const QuizSelectionPage = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {familiesToDisplay.map((family) => (
-              <Card key={family.id} className="hover:shadow-xl transition-shadow duration-300 border-blue-100 flex flex-col">
+              <Card key={family.id} className="hover:shadow-xl transition-shadow duration-300 border-yellow-200 flex flex-col bg-white">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <CardTitle className="text-blue-700 text-2xl">{family.chineseName}</CardTitle>
+                      <CardTitle className="text-lime-700 text-2xl">{family.chineseName}</CardTitle>
                       <CardDescription className="text-gray-500 italic">{family.latinName}</CardDescription>
                     </div>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 whitespace-nowrap">
+                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
                       {family.commonSpecies.length} 常见种
                     </Badge>
                   </div>
@@ -49,7 +49,7 @@ const QuizSelectionPage = () => {
                 </CardContent>
                 <div className="p-6 pt-0">
                   <Link to={`/quiz/${family.id}`}>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                       开始挑战：{family.chineseName}
                     </Button>
                   </Link>
