@@ -18,8 +18,9 @@ const Quiz = () => {
   const [userAnswer, setUserAnswer] = useState('');
   const [score, setScore] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  // const [isCorrect, setIsCorrect] = useState<boolean | null>(null); // Removed isCorrect
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [lastAnswerFeedback, setLastAnswerFeedback] = useState<{ pointsAwarded: number; matchedCount: number; totalKeywordsInQuestion: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const family = useMemo(() => plantFamilies.find(f => f.id === familyId), [familyId]);
@@ -33,8 +34,8 @@ const Quiz = () => {
       setUserAnswer('');
       setScore(0);
       setShowFeedback(false);
-      setIsCorrect(null);
       setQuizCompleted(false);
+      setLastAnswerFeedback(null);
     }
   }, [familyId]);
 
@@ -93,22 +94,42 @@ const Quiz = () => {
   const handleSubmitAnswer = () => {
     if (!currentQuestion || userAnswer.trim() === '') return;
 
-    const answerLower = userAnswer.trim().toLowerCase();
-    const correct = currentQuestion.acceptableKeywords.some(keyword =>
-      answerLower.includes(keyword.toLowerCase())
-    );
+    const userInputKeywords = userAnswer
+      .split(/[，,]/) // Split by Chinese or English comma
+      .map(keyword => keyword.trim().toLowerCase())
+      .filter(keyword => keyword !== '');
 
-    setIsCorrect(correct);
-    if (correct) {
-      setScore(score + currentQuestion.points);
+    const questionKeywords = currentQuestion.acceptableKeywords.map(k => k.toLowerCase());
+
+    const matchedKeywordsSet = new Set<string>();
+    userInputKeywords.forEach(userKeyword => {
+      questionKeywords.forEach(qKeyword => {
+        // Using exact match for simplicity, could be includes if needed
+        if (userKeyword === qKeyword) {
+          matchedKeywordsSet.add(qKeyword); // Add the keyword from acceptableKeywords to avoid user's typos counting as "unique"
+        }
+      });
+    });
+
+    const matchedCount = matchedKeywordsSet.size;
+    let pointsAwarded = 0;
+    if (questionKeywords.length > 0) {
+      pointsAwarded = Math.round((matchedCount / questionKeywords.length) * currentQuestion.points);
     }
+
+    setScore(score + pointsAwarded);
+    setLastAnswerFeedback({
+      pointsAwarded,
+      matchedCount,
+      totalKeywordsInQuestion: questionKeywords.length,
+    });
     setShowFeedback(true);
   };
 
   const handleNextQuestion = () => {
     setUserAnswer('');
     setShowFeedback(false);
-    setIsCorrect(null);
+    setLastAnswerFeedback(null);
     if (currentQuestionIndex < currentFamilyQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -121,8 +142,8 @@ const Quiz = () => {
     setUserAnswer('');
     setScore(0);
     setShowFeedback(false);
-    setIsCorrect(null);
     setQuizCompleted(false);
+    setLastAnswerFeedback(null);
   };
 
   const progress = currentFamilyQuestions.length > 0 ? ((currentQuestionIndex + (showFeedback ? 1: 0) ) / currentFamilyQuestions.length) * 100 : 0;
@@ -239,17 +260,20 @@ const Quiz = () => {
               />
             </div>
 
-            {showFeedback && (
-              <Alert className={`mb-5 p-4 rounded-md ${isCorrect ? "bg-green-50 border-green-400 text-green-800" : "bg-red-50 border-red-400 text-red-800"}`}>
+            {showFeedback && lastAnswerFeedback && currentQuestion && (
+              <Alert className={`mb-5 p-4 rounded-md ${lastAnswerFeedback.pointsAwarded > 0 ? (lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "bg-green-50 border-green-400 text-green-800" : "bg-yellow-50 border-yellow-400 text-yellow-800") : "bg-red-50 border-red-400 text-red-800"}`}>
                 <div className="flex items-center">
-                  {isCorrect ? <CheckCircle className="h-6 w-6 text-green-600 mr-3" /> : <XCircle className="h-6 w-6 text-red-600 mr-3" />}
+                  {lastAnswerFeedback.pointsAwarded > 0 ? <CheckCircle className={`h-6 w-6 ${lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "text-green-600" : "text-yellow-600"} mr-3`} /> : <XCircle className="h-6 w-6 text-red-600 mr-3" />}
                   <div className="flex-grow">
                     <AlertTitle className="font-bold text-lg">
-                      {isCorrect ? "回答正确！" : "回答错误"}
+                      {lastAnswerFeedback.pointsAwarded === currentQuestion.points ? "回答完美！" : (lastAnswerFeedback.pointsAwarded > 0 ? "部分正确！" : "有待改进")}
                     </AlertTitle>
-                    <AlertDescription className="text-sm mt-1">
-                      {isCorrect ? `太棒了！获得 ${currentQuestion.points} 分！` :
-                       currentQuestion.acceptableKeywords.length > 0 ? `提示: 正确关键词可能包括 "${currentQuestion.acceptableKeywords.slice(0,2).join('", "')}" 等。` : "请再接再厉！"}
+                    <AlertDescription className="text-sm mt-1 space-y-1">
+                      <p>本题得分: <span className="font-semibold">{lastAnswerFeedback.pointsAwarded}</span> / {currentQuestion.points} 分。</p>
+                      <p>您答对了 <span className="font-semibold">{lastAnswerFeedback.matchedCount}</span> 个关键词（题目共 {lastAnswerFeedback.totalKeywordsInQuestion} 个主要关键词）。</p>
+                      {lastAnswerFeedback.pointsAwarded < currentQuestion.points && lastAnswerFeedback.totalKeywordsInQuestion > 0 && (
+                        <p className="text-xs">提示: 题目主要关键词包括 "{currentQuestion.acceptableKeywords.join('", "')}"。</p>
+                      )}
                     </AlertDescription>
                   </div>
                 </div>
