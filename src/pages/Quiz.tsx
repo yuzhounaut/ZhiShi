@@ -38,7 +38,7 @@ const Quiz = () => {
   const navigate = useNavigate();
 
   const [currentFamilyQuestions, setCurrentFamilyQuestions] = useState<QuizQuestion[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Removed, only one question now
   const [userAnswer, setUserAnswer] = useState('');
   const [score, setScore] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -54,7 +54,7 @@ const Quiz = () => {
       const questionsForFamily = quizQuestions.filter(q => q.familyId === familyId);
       setCurrentFamilyQuestions(questionsForFamily);
       // Reset quiz state when familyId changes or component mounts for a new family
-      setCurrentQuestionIndex(0);
+      // setCurrentQuestionIndex(0); // Removed
       setUserAnswer('');
       setScore(0);
       setShowFeedback(false);
@@ -64,21 +64,23 @@ const Quiz = () => {
   }, [familyId]);
 
   const currentQuestion = useMemo(() => {
-    if (currentFamilyQuestions.length > 0 && currentQuestionIndex < currentFamilyQuestions.length) {
-      return currentFamilyQuestions[currentQuestionIndex];
+    if (currentFamilyQuestions.length > 0) {
+      // There's only one question per family now
+      return currentFamilyQuestions[0];
     }
     return null;
-  }, [currentFamilyQuestions, currentQuestionIndex]);
+  }, [currentFamilyQuestions]);
 
   const totalPossiblePoints = useMemo(() => {
     return currentFamilyQuestions.reduce((sum, q) => sum + q.points, 0);
   }, [currentFamilyQuestions]);
 
   useEffect(() => {
-    if (!showFeedback && inputRef.current) {
+    // Focus input when feedback is not shown and there's a current question
+    if (!showFeedback && inputRef.current && currentQuestion) {
       inputRef.current.focus();
     }
-  }, [currentQuestionIndex, showFeedback]);
+  }, [showFeedback, currentQuestion]); // Depends on currentQuestion now
 
 
   if (!family) {
@@ -165,15 +167,13 @@ const Quiz = () => {
     setUserAnswer('');
     setShowFeedback(false);
     setLastAnswerFeedback(null);
-    if (currentQuestionIndex < currentFamilyQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      setQuizCompleted(true);
-    }
+    // Since there's only one question per family now,
+    // clicking "Next" (which will be "View Score") always completes the quiz.
+    setQuizCompleted(true);
   };
 
   const restartQuiz = () => {
-    setCurrentQuestionIndex(0);
+    // setCurrentQuestionIndex(0); // Removed as state is removed
     setUserAnswer('');
     setScore(0);
     setShowFeedback(false);
@@ -181,8 +181,8 @@ const Quiz = () => {
     setLastAnswerFeedback(null);
   };
 
-  const progress = currentFamilyQuestions.length > 0 ? ((currentQuestionIndex + (showFeedback ? 1: 0) ) / currentFamilyQuestions.length) * 100 : 0;
-
+  // Progress: 0 before answering, 100 after feedback for the single question.
+  const progress = currentFamilyQuestions.length > 0 && showFeedback ? 100 : 0;
 
   if (quizCompleted) {
     return (
@@ -260,7 +260,7 @@ const Quiz = () => {
           <CardHeader className="bg-yellow-50 p-5 sm:p-6 border-b border-yellow-200">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-2">
               <CardTitle className="text-lg sm:text-xl text-green-900 font-semibold">
-                题目 {currentQuestionIndex + 1} / {currentFamilyQuestions.length}
+                题目
               </CardTitle>
               <Badge variant="outline" className="border-yellow-400 text-yellow-700 text-xs sm:text-sm py-1 px-2.5 self-start sm:self-center">
                 {currentQuestion.targetFeatureCategory} - {currentQuestion.points}分
@@ -285,7 +285,7 @@ const Quiz = () => {
               <Input
                 ref={inputRef}
                 type="text"
-                placeholder="输入您认为正确的特征关键词..."
+                placeholder="输入特征关键词，用逗号分隔..."
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && !showFeedback && userAnswer.trim() !== '' && handleSubmitAnswer()}
@@ -326,7 +326,7 @@ const Quiz = () => {
                 </Button>
               ) : (
                 <Button onClick={handleNextQuestion} className="flex-1 bg-lime-600 hover:bg-lime-700 text-white text-lg py-3 rounded-md">
-                  {currentQuestionIndex < currentFamilyQuestions.length - 1 ? '下一题' : '查看总分'}
+                  查看总分
                 </Button>
               )}
             </div>
