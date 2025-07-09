@@ -15,6 +15,7 @@ interface IdentificationResultItem { // Renamed and expanded
   latinName?: string;
   description?: string;
   matchedCount: number; // Specifically for keyword matches
+  matchedKeywords?: string[]; // To store the actual matched keywords
   matchedByKeyword: boolean;
   matchedByTraits: boolean;
   // selectedTraitNames?: string[]; // Optional: If we want to show which traits matched
@@ -99,6 +100,7 @@ const PlantIdentifier = () => {
             latinName: familyInfo?.latinName,
             description: familyInfo?.description,
             matchedCount: matchedStandardKeywordsForThisFamily.size,
+            matchedKeywords: Array.from(matchedStandardKeywordsForThisFamily), // Store matched keywords
             matchedByKeyword: true, // Explicitly set
             matchedByTraits: false, // Initialize
           });
@@ -413,12 +415,23 @@ const PlantIdentifier = () => {
                               </div>
                               <div className="flex flex-col items-end space-y-1">
                                 {familyResult.matchedByKeyword && (
-                                  <Badge variant="default" className="bg-blue-500 text-white text-xs">
-                                    关键词匹配: {familyResult.matchedCount}
-                                  </Badge>
+                                  <>
+                                    <Badge variant="default" className="bg-blue-500 text-white text-xs">
+                                      关键词匹配: {familyResult.matchedCount}
+                                    </Badge>
+                                    {familyResult.matchedKeywords && familyResult.matchedKeywords.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {familyResult.matchedKeywords.map(keyword => (
+                                          <Badge key={keyword} variant="outline" className="text-xs text-blue-700 border-blue-300">
+                                            {keyword}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                                 {familyResult.matchedByTraits && (
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge variant="secondary" className="text-xs mt-1">
                                     特征匹配
                                   </Badge>
                                 )}
