@@ -24,13 +24,13 @@ const Home = () => {
       {/* Core Feature: Plant Identification */}
       <section className="mb-16">
         <div className="container mx-auto max-w-2xl">
-          <Card className="bg-gradient-to-br from-green-400 to-green-600 text-white shadow-xl overflow-hidden">
+          <Card className="bg-slate-100 text-slate-800 shadow-xl overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-center mb-3">
-                <Search className="h-12 w-12 mr-3" />
+                <Search className="h-12 w-12 mr-3" /> {/* Icon color might need adjustment if it was relying on text-white inheritance */}
                 <CardTitle className="text-3xl md:text-4xl font-bold">植物智能鉴定</CardTitle>
               </div>
-              <CardDescription className="text-green-100 text-center text-md">
+              <CardDescription className="text-slate-600 text-center text-md">
                 通过选择植物特征关键词，快速识别未知植物。
               </CardDescription>
             </CardHeader>
