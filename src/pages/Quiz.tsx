@@ -9,6 +9,30 @@ import { Progress } from '@/components/ui/progress';
 import { plantFamilies, quizQuestions, QuizQuestion } from '@/data/plantData';
 import { ArrowLeft, CheckCircle, XCircle, Lightbulb, RotateCcw, Award } from 'lucide-react';
 
+// Helper function to check if two strings are composed of the same characters, ignoring order.
+const areCharSetsEqual = (str1: string, str2: string): boolean => {
+  if (str1.length !== str2.length) {
+    // If lengths are different, they can't be made of the exact same characters in different orders.
+    // This also handles cases where one string might have all characters of the other plus more.
+    return false;
+  }
+  const set1 = new Set(str1.split(''));
+  const set2 = new Set(str2.split(''));
+
+  if (set1.size !== set2.size) {
+    // If the number of unique characters is different.
+    return false;
+  }
+
+  for (const char of set1) {
+    if (!set2.has(char)) {
+      return false;
+    }
+  }
+  // No need to check the other way if lengths and set sizes are already equal.
+  return true;
+};
+
 const Quiz = () => {
   const { familyId } = useParams<{ familyId: string }>();
   const navigate = useNavigate();
@@ -103,12 +127,23 @@ const Quiz = () => {
 
     const matchedKeywordsSet = new Set<string>();
     userInputKeywords.forEach(userKeyword => {
-      questionKeywords.forEach(qKeyword => {
-        // Using exact match for simplicity, could be includes if needed
-        if (userKeyword === qKeyword) {
-          matchedKeywordsSet.add(qKeyword); // Add the keyword from acceptableKeywords to avoid user's typos counting as "unique"
-        }
-      });
+      // Ensure userKeyword is not empty after trimming, already handled by filter but good for safety
+      if (userKeyword) {
+        questionKeywords.forEach(qKeyword => {
+          // Ensure qKeyword is not empty
+          if (qKeyword) {
+            // Apply the combined matching logic:
+            // 1. u_keyword.includes(a_keyword)
+            // 2. a_keyword.includes(u_keyword)
+            // 3. areCharSetsEqual(u_keyword, a_keyword)
+            if (userKeyword.includes(qKeyword) ||
+                qKeyword.includes(userKeyword) ||
+                areCharSetsEqual(userKeyword, qKeyword)) {
+              matchedKeywordsSet.add(qKeyword); // Add the standard keyword to the set
+            }
+          }
+        });
+      }
     });
 
     const matchedCount = matchedKeywordsSet.size;
