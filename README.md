@@ -1,6 +1,6 @@
-# Plant Explorer - A Web Application for Plant Identification and Education
+# ZhiShi - A Web Application for Plant Identification and Education
 
-Plant Explorer is an interactive web application designed to help users learn about different plant families, identify plants based on their characteristics, and test their botanical knowledge through quizzes.
+ZhiShi is an interactive web application designed to help users learn about different plant families, identify plants based on their characteristics, and test their botanical knowledge through quizzes.
 
 This project is built with:
 
@@ -52,8 +52,8 @@ All shadcn/ui components have been downloaded under `@/components/ui`.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/plant-explorer.git
-    cd plant-explorer
+    git clone https://github.com/yuzhounaut/ZhiShi.git
+    cd ZhiShi
     ```
 
 2.  **Install Dependencies:**
