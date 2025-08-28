@@ -23,7 +23,12 @@ const QuizSelectionPage = () => {
           </p>
         </header>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {familiesToDisplay.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">暂无可供挑战的植物科。</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Card for the new Image Quiz */}
             <Card className="hover:shadow-xl transition-shadow duration-300 border-indigo-200 flex flex-col bg-white lg:col-span-1 md:col-span-2">
                  <CardHeader>
