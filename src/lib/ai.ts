@@ -16,7 +16,8 @@ class PipelineSingleton {
     if (this.instance === null) {
       // Load the model from the local path /public/models/all-MiniLM-L6-v2/
       // The path is relative to the public directory.
-      this.instance = pipeline('feature-extraction', '/models/all-MiniLM-L6-v2');
+      // We explicitly tell the pipeline to load the quantized version.
+      this.instance = pipeline('feature-extraction', '/models/all-MiniLM-L6-v2', { quantized: true });
     }
     return this.instance;
   }
