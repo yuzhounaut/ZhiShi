@@ -19,7 +19,7 @@ class PipelineSingleton {
   static getInstance(): Promise<Pipeline> {
     if (this.instance === null) {
       // The path must be all lowercase to match the Netlify deployment.
-      this.instance = pipeline('feature-extraction', '/models/all-minilm-l6-v2', { quantized: true });
+      this.instance = pipeline('feature-extraction', '/models/bge-small-zh-v1.5', { quantized: true });
     }
     return this.instance;
   }
