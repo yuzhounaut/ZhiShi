@@ -1,8 +1,4 @@
-import { pipeline, cos_sim, Pipeline, env } from '@xenova/transformers';
-
-// Set the remote host to ModelScope and define the path template
-env.remoteHost = 'https://modelscope.cn';
-env.remotePathTemplate = 'api/v1/models/{model_id}/repo?Revision={revision}&FilePath={path}';
+import { pipeline, cos_sim, Pipeline } from '@xenova/transformers';
 
 /**
  * A singleton class to manage and provide a single instance of the feature-extraction pipeline.
@@ -18,9 +14,9 @@ class PipelineSingleton {
    */
   static getInstance(): Promise<Pipeline> {
     if (this.instance === null) {
-      // The 'feature-extraction' pipeline will download and cache the model on first use.
-      // 'Xenova/all-MiniLM-L6-v2' is a good starting point for sentence similarity.
-      this.instance = pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+      // Load the model from the local path /public/models/all-MiniLM-L6-v2/
+      // The path is relative to the public directory.
+      this.instance = pipeline('feature-extraction', '/models/all-MiniLM-L6-v2');
     }
     return this.instance;
   }
