@@ -1,8 +1,12 @@
 import { pipeline, cos_sim, Pipeline, env } from '@xenova/transformers';
 
-// Configure transformers.js to use local models only.
+// Configure transformers.js for local-only execution
 env.allowLocalModels = true;
 env.allowRemoteModels = false;
+// Set the path to the local models directory (relative to the public folder)
+env.localModelPath = '/models/';
+// Set the path to the local WASM files (relative to the public folder)
+env.backends.onnx.wasm.wasmPaths = '/wasm/';
 
 /**
  * A singleton class to manage and provide a single instance of the feature-extraction pipeline.
@@ -18,8 +22,9 @@ class PipelineSingleton {
    */
   static getInstance(): Promise<Pipeline> {
     if (this.instance === null) {
-      // The path must be all lowercase to match the Netlify deployment.
-      this.instance = pipeline('feature-extraction', '/models/bge-small-zh-v1.5', { quantized: true });
+      // Use the model's short name. The library will combine this with `localModelPath`.
+      // The name must be all lowercase to avoid case-sensitivity issues on Netlify.
+      this.instance = pipeline('feature-extraction', 'bge-small-zh-v1.5', { quantized: true });
     }
     return this.instance;
   }
