@@ -249,12 +249,32 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
               <CardTitle className="text-green-800">特征详情</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-x-6 gap-y-8">
                 <div>
                   <h4 className="font-medium text-gray-800 mb-3">生长习性</h4>
                   <div className="flex flex-wrap gap-2">
                     {family.traits.growth.map((trait) => (
                       <Badge key={trait} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        {trait}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-800 mb-3">根部特征</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {family.traits.root.map((trait) => (
+                      <Badge key={trait} variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        {trait}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-800 mb-3">茎部特征</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {family.traits.stem.map((trait) => (
+                      <Badge key={trait} variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
                         {trait}
                       </Badge>
                     ))}
