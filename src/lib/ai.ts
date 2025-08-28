@@ -1,4 +1,8 @@
-import { pipeline, cos_sim, Pipeline } from '@xenova/transformers';
+import { pipeline, cos_sim, Pipeline, env } from '@xenova/transformers';
+
+// Configure transformers.js to use local models only.
+env.allowLocalModels = true;
+env.allowRemoteModels = false;
 
 /**
  * A singleton class to manage and provide a single instance of the feature-extraction pipeline.
