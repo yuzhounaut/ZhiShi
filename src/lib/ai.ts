@@ -3,9 +3,6 @@ import { pipeline, cos_sim, Pipeline, env } from '@xenova/transformers';
 // Configure transformers.js to use local models only.
 env.allowLocalModels = true;
 env.allowRemoteModels = false;
-// Set the path to the local models directory.
-// Vite serves the `public` directory at the root.
-env.localModelPath = '/models/';
 
 /**
  * A singleton class to manage and provide a single instance of the feature-extraction pipeline.
@@ -21,9 +18,8 @@ class PipelineSingleton {
    */
   static getInstance(): Promise<Pipeline> {
     if (this.instance === null) {
-      // The model name should match the sub-directory in /public/models/
-      // The library will combine localModelPath and the model name.
-      this.instance = pipeline('feature-extraction', 'all-MiniLM-L6-v2', { quantized: true });
+      // The path must be all lowercase to match the Netlify deployment.
+      this.instance = pipeline('feature-extraction', '/models/all-minilm-l6-v2', { quantized: true });
     }
     return this.instance;
   }
