@@ -35,6 +35,7 @@ const PlantIdentifier = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [loadingMessage, setLoadingMessage] = useState('正在鉴定中...');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Create a flat list of all traits from all families to serve as the AI's search space.
   // This is memoized to avoid re-computation on every render.
@@ -62,44 +63,48 @@ const PlantIdentifier = () => {
     setIsLoading(true);
     setSearchPerformed(true);
     setAiResults([]);
+    setErrorMessage(null);
 
-    // First-time load can be slow, provide feedback to the user.
-    setLoadingMessage('正在唤醒AI模型，首次启动可能需要一点时间...');
+    try {
+      setLoadingMessage('正在唤醒AI模型，首次启动可能需要一点时间...');
 
-    const corpusTexts = traitCorpus.map(item => item.trait);
-    const searchResults = await semanticSearch(userQuery, corpusTexts);
+      const corpusTexts = traitCorpus.map(item => item.trait);
+      const searchResults = await semanticSearch(userQuery, corpusTexts);
 
-    setLoadingMessage('正在分析特征...');
+      setLoadingMessage('正在分析特征...');
 
-    // A map to store the best result for each family
-    const bestResultsMap = new Map<string, AIIdentificationResultItem>();
+      // A map to store the best result for each family
+      const bestResultsMap = new Map<string, AIIdentificationResultItem>();
 
-    for (const result of searchResults) {
-      // We only care about reasonably good matches
-      if (result.score < 0.3) continue;
+      for (const result of searchResults) {
+        if (result.score < 0.3) continue;
 
-      const corpusItem = traitCorpus[result.corpus_id];
-      const familyId = corpusItem.familyId;
+        const corpusItem = traitCorpus[result.corpus_id];
+        const familyId = corpusItem.familyId;
 
-      // If we haven't seen this family yet, or this result is better, store it.
-      if (!bestResultsMap.has(familyId) || result.score > bestResultsMap.get(familyId)!.aiScore) {
-        const familyInfo = plantFamilies.find(pf => pf.id === familyId);
-        bestResultsMap.set(familyId, {
-          familyId: familyId,
-          name: familyInfo?.chineseName,
-          latinName: familyInfo?.latinName,
-          description: familyInfo?.description,
-          aiScore: result.score,
-          matchingTrait: result.text,
-        });
+        if (!bestResultsMap.has(familyId) || result.score > bestResultsMap.get(familyId)!.aiScore) {
+          const familyInfo = plantFamilies.find(pf => pf.id === familyId);
+          bestResultsMap.set(familyId, {
+            familyId: familyId,
+            name: familyInfo?.chineseName,
+            latinName: familyInfo?.latinName,
+            description: familyInfo?.description,
+            aiScore: result.score,
+            matchingTrait: result.text,
+          });
+        }
       }
+
+      const finalResults = Array.from(bestResultsMap.values());
+      finalResults.sort((a, b) => b.aiScore - a.aiScore);
+
+      setAiResults(finalResults);
+    } catch (error) {
+      console.error("AI Search Failed:", error);
+      setErrorMessage("AI模型加载或分析失败。请检查模型文件是否正确放置在public目录下，或刷新页面重试。");
+    } finally {
+      setIsLoading(false);
     }
-
-    const finalResults = Array.from(bestResultsMap.values());
-    finalResults.sort((a, b) => b.aiScore - a.aiScore);
-
-    setAiResults(finalResults);
-    setIsLoading(false);
   };
 
   // Filtering logic remains, but now it filters the AI results
@@ -284,6 +289,14 @@ const PlantIdentifier = () => {
                   <div className="text-center py-12">
                     <Bot className="h-12 w-12 text-green-600 animate-spin mx-auto mb-4" />
                     <p className="text-lg font-medium text-gray-700">{loadingMessage}</p>
+                  </div>
+                ) : errorMessage ? (
+                  <div className="text-center py-12 text-red-600">
+                    <div className="text-6xl mb-4">☹️</div>
+                    <h3 className="text-lg font-medium text-red-700 mb-2">发生错误</h3>
+                    <p className="text-red-500 mb-4">
+                      {errorMessage}
+                    </p>
                   </div>
                 ) : !searchPerformed ? (
                   <div className="text-center py-12">
