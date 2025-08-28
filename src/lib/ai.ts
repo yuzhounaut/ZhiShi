@@ -1,4 +1,8 @@
-import { pipeline, cos_sim, Pipeline } from '@xenova/transformers';
+import { pipeline, cos_sim, Pipeline, env } from '@xenova/transformers';
+
+// Set the remote host to ModelScope and define the path template
+env.remoteHost = 'https://modelscope.cn';
+env.remotePathTemplate = 'api/v1/models/{model_id}/repo?Revision={revision}&FilePath={path}';
 
 /**
  * A singleton class to manage and provide a single instance of the feature-extraction pipeline.
