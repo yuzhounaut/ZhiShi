@@ -8,6 +8,8 @@ export interface PlantFamily {
   images: string[];
   traits: {
     growth: string[];
+    root: string[];
+    stem: string[];
     leaf: string[];
     flower: string[];
     fruit: string[];
@@ -47,6 +49,95 @@ export const plantTraits: PlantTrait[] = [
   { id: 'capsule', category: '果实特征', name: '蒴果', description: '干燥果实，成熟时开裂释放种子' },
   { id: 'achene', category: '果实特征', name: '瘦果', description: '小型干燥果实，通常单种子' },
   { id: 'legume', category: '果实特征', name: '荚果', description: '豆类特有果实，沿腹缝和背缝开裂' },
+  { id: 'drupe', category: '果实特征', name: '核果', description: '外果皮薄，中果皮肉质，内果皮坚硬' },
+  { id: 'pome', category: '果实特征', name: '梨果', description: '花托发育而成的肉质果实，如苹果' },
+  { id: 'silique', category: '果实特征', name: '角果', description: '十字花科特有的果实类型' },
+  { id: 'caryopsis', category: '果实特征', name: '颖果', description: '禾本科特有的果实，果皮与种皮合生' },
+
+  // 根特征
+  { id: 'taproot', category: '根特征', name: '主根系', description: '有明显的主根和侧根' },
+  { id: 'fibrous', category: '根特征', name: '须根系', description: '没有明显主根，由许多不定根组成' },
+  { id: 'nodule', category: '根特征', name: '根瘤', description: '豆科植物根部与根瘤菌共生形成的结构' },
+  { id: 'bulb', category: '根特征', name: '鳞茎', description: '地下变态茎，储存养分，如洋葱' },
+  { id: 'rhizome', category: '根特征', name: '根状茎', description: '地下的根状变态茎，如姜' },
+
+  // 茎特征
+  { id: 'woody', category: '茎特征', name: '木质茎', description: '茎部坚硬，木质化' },
+  { id: 'herbaceous', category: '茎特征', name: '草质茎', description: '茎部柔软，非木质' },
+  { id: 'square_stem', category: '茎特征', name: '方茎', description: '茎的横切面为四方形' },
+  { id: 'angular_stem', category: '茎特征', name: '四棱茎', description: '茎有四条棱' },
+  { id: 'erect_stem', category: '茎特征', name: '直立茎', description: '茎干垂直向上生长' },
+  { id: 'hollow_stem', category: '茎特征', name: '茎中空', description: '茎的内部是空心的' },
+  { id: 'jointed_stem', category: '茎特征', name: '有节', description: '茎上有明显的节' },
+
+  // 新增叶特征
+  { id: 'parallel_veins', category: '叶特征', name: '叶平行脉', description: '叶脉大致相互平行，多见于单子叶植物' },
+  { id: 'leaf_sheath', category: '叶特征', name: '叶鞘', description: '叶基部包围茎的部分' },
+  { id: 'ligule', category: '叶特征', name: '叶舌', description: '位于叶片和叶鞘连接处的膜质结构' },
+
+  // 新增花特征
+  { id: 'ligulate_corolla', category: '花特征', name: '舌状花冠', description: '花冠的一部分伸出呈舌状' },
+  { id: 'spikelet', category: '花特征', name: '小穗', description: '禾本科植物的基本花序单位' }
+];
+
+// --- New Data for Module 4: Morphology Image Quiz ---
+
+export interface MorphologyQuizItem {
+  id: string;
+  term: string;
+  imageUrl: string;
+  description: string;
+}
+
+export const morphologyQuizData: MorphologyQuizItem[] = [
+  {
+    id: 'square-stem',
+    term: '方茎',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=方茎',
+    description: '唇形科植物的典型特征，茎的横切面呈四方形。'
+  },
+  {
+    id: 'ligulate-corolla',
+    term: '舌状花冠',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=舌状花冠',
+    description: '菊科植物中常见，部分花瓣延长呈舌头状。'
+  },
+  {
+    id: 'cruciform-corolla',
+    term: '十字形花冠',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=十字形花冠',
+    description: '十字花科的标志，四片花瓣呈十字对称排列。'
+  },
+  {
+    id: 'fibrous-roots',
+    term: '须根系',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=须根系',
+    description: '没有明显主根，由许多粗细相似的不定根组成，常见于单子叶植物。'
+  },
+  {
+    id: 'taproot-system',
+    term: '主根系',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=主根系',
+    description: '有明显、发达的主根，主根上生出侧根，常见于双子叶植物。'
+  },
+  {
+    id: 'compound-leaf',
+    term: '复叶',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=复叶',
+    description: '叶片完全分裂成多个独立的小叶。'
+  },
+  {
+    id: 'legume-fruit',
+    term: '荚果',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=荚果',
+    description: '豆科植物特有的果实，由单心皮发育而成，成熟后沿背缝和腹缝开裂。'
+  },
+  {
+    id: 'rhizome',
+    term: '根状茎',
+    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=根状茎',
+    description: '一种横向生长的地下变态茎，有明显的节和节间，如姜。'
+  }
 ];
 
 export const plantFamilies: PlantFamily[] = [
@@ -65,9 +156,11 @@ export const plantFamilies: PlantFamily[] = [
     images: ['/images/rosaceae_1.jpg', '/images/rosaceae_2.jpg'],
     traits: {
       growth: ['灌木', '乔木'],
+      root: ['主根系'],
+      stem: ['木质茎'],
       leaf: ['叶互生', '单叶', '复叶'],
       flower: ['辐射对称'],
-      fruit: ['浆果', '蒴果']
+      fruit: ['浆果', '蒴果', '核果', '梨果']
     }
   },
   {
@@ -85,6 +178,8 @@ export const plantFamilies: PlantFamily[] = [
     images: ['/images/leguminosae_1.jpg', '/images/leguminosae_2.jpg'],
     traits: {
       growth: ['草本', '灌木', '乔木'],
+      root: ['主根系', '根瘤'],
+      stem: ['草质茎', '木质茎'],
       leaf: ['叶互生', '复叶'],
       flower: ['两侧对称'],
       fruit: ['荚果']
@@ -105,8 +200,10 @@ export const plantFamilies: PlantFamily[] = [
     images: ['/images/compositae_1.jpg', '/images/compositae_2.jpg'],
     traits: {
       growth: ['草本'],
+      root: ['主根系'],
+      stem: ['草质茎'],
       leaf: ['叶互生', '叶对生'],
-      flower: ['辐射对称', '管状花冠'],
+      flower: ['辐射对称', '管状花冠', '舌状花冠'],
       fruit: ['瘦果']
     }
   },
@@ -125,6 +222,8 @@ export const plantFamilies: PlantFamily[] = [
     images: ['/images/labiatae_1.jpg', '/images/labiatae_2.jpg'],
     traits: {
       growth: ['草本'],
+      root: ['须根系'],
+      stem: ['方茎', '四棱茎'],
       leaf: ['叶对生', '单叶'],
       flower: ['两侧对称', '唇形花冠'],
       fruit: ['瘦果']
@@ -145,9 +244,11 @@ export const plantFamilies: PlantFamily[] = [
     images: ['/images/cruciferae_1.jpg', '/images/cruciferae_2.jpg'],
     traits: {
       growth: ['草本'],
+      root: ['主根系'],
+      stem: ['草质茎'],
       leaf: ['叶互生', '单叶'],
       flower: ['辐射对称', '十字形花冠'],
-      fruit: ['蒴果']
+      fruit: ['角果']
     }
   },
   {
@@ -165,9 +266,55 @@ export const plantFamilies: PlantFamily[] = [
     images: ['/images/solanaceae_1.jpg', '/images/solanaceae_2.jpg'],
     traits: {
       growth: ['草本'],
+      root: ['主根系'],
+      stem: ['草质茎'],
       leaf: ['叶互生', '单叶'],
       flower: ['辐射对称', '管状花冠'],
       fruit: ['浆果']
+    }
+  },
+  {
+    id: 'liliaceae',
+    chineseName: '百合科',
+    latinName: 'Liliaceae',
+    description: '百合科是单子叶植物中的大科，多为多年生草本，具根状茎、鳞茎或块茎。',
+    characteristics: [
+      '花基数常为3',
+      '花被片6枚，2轮排列',
+      '雄蕊6枚',
+      '子房上位'
+    ],
+    commonSpecies: ['百合', '郁金香', '贝母', '黄精'],
+    images: ['/images/liliaceae_1.jpg', '/images/liliaceae_2.jpg'],
+    traits: {
+      growth: ['草本'],
+      root: ['须根系', '鳞茎', '根状茎'],
+      stem: ['直立茎'],
+      leaf: ['单叶', '叶平行脉'],
+      flower: ['辐射对称'],
+      fruit: ['蒴果', '浆果']
+    }
+  },
+  {
+    id: 'gramineae',
+    chineseName: '禾本科',
+    latinName: 'Gramineae (Poaceae)',
+    description: '禾本科是单子叶植物中最重要的科之一，包括了世界上大部分的粮食作物。',
+    characteristics: [
+      '茎有节和节间，节间中空',
+      '叶鞘开裂，有叶舌',
+      '花序为小穗',
+      '果实为颖果'
+    ],
+    commonSpecies: ['水稻', '小麦', '玉米', '竹子', '高粱'],
+    images: ['/images/gramineae_1.jpg', '/images/gramineae_2.jpg'],
+    traits: {
+      growth: ['草本'],
+      root: ['须根系'],
+      stem: ['茎中空', '有节'],
+      leaf: ['单叶', '叶鞘', '叶舌'],
+      flower: ['小穗'],
+      fruit: ['颖果']
     }
   }
 ];
