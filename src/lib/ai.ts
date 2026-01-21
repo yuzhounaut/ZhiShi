@@ -8,6 +8,10 @@ env.localModelPath = '/models/';
 // Set the path to the local WASM files (relative to the public folder)
 env.backends.onnx.wasm.wasmPaths = '/wasm/';
 
+// Cache for corpus embeddings to improve performance on subsequent searches
+let cachedCorpus: string[] | null = null;
+let cachedCorpusEmbeddings: any = null;
+
 /**
  * A singleton class to manage and provide a single instance of the feature-extraction pipeline.
  * This prevents the model from being reloaded every time it's used, which is crucial for performance.
@@ -49,9 +53,24 @@ export const semanticSearch = async (query: string, corpus: string[]): Promise<S
 
   const extractor = await PipelineSingleton.getInstance();
 
-  // Embed the query and the corpus. The `normalize: true` option is important for cosine similarity.
+  // Embed the query. The `normalize: true` option is important for cosine similarity.
   const query_embedding = await extractor(query, { pooling: 'mean', normalize: true });
-  const corpus_embeddings = await extractor(corpus, { pooling: 'mean', normalize: true });
+
+  // Check if we can use cached corpus embeddings
+  let corpus_embeddings;
+  const corpusChanged = !cachedCorpus ||
+                        cachedCorpus.length !== corpus.length ||
+                        cachedCorpus[0] !== corpus[0] ||
+                        cachedCorpus[cachedCorpus.length - 1] !== corpus[corpus.length - 1];
+
+  if (corpusChanged) {
+    // Embed the corpus. This is a heavy operation.
+    corpus_embeddings = await extractor(corpus, { pooling: 'mean', normalize: true });
+    cachedCorpus = [...corpus];
+    cachedCorpusEmbeddings = corpus_embeddings;
+  } else {
+    corpus_embeddings = cachedCorpusEmbeddings;
+  }
 
   // Create a tensor from the query embedding data
   const queryTensor = query_embedding.data;
