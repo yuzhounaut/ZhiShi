@@ -302,10 +302,10 @@ const PlantIdentifier = () => {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl text-green-800">鉴定结果</CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <CardTitle className="text-lg sm:text-xl text-green-800">鉴定结果</CardTitle>
                   {searchPerformed && !isLoading && (
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge variant="secondary" className="bg-green-100 text-green-800 w-fit">
                       找到 {filteredResults.length} 个可能的科
                     </Badge>
                   )}
@@ -324,16 +324,16 @@ const PlantIdentifier = () => {
                       </div>
                     </div>
 
-                    <div className="w-full max-w-md space-y-4">
-                      <div className="flex justify-between items-end mb-1">
-                        <div className="space-y-1">
-                          <p className="text-lg font-semibold text-green-800 flex items-center">
-                            <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
-                            {loadingMessage}
+                    <div className="w-full max-w-md space-y-4 px-2 sm:px-0">
+                      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-1 gap-2">
+                        <div className="space-y-1 min-w-0">
+                          <p className="text-base sm:text-lg font-semibold text-green-800 flex items-start sm:items-center">
+                            <Sparkles className="h-4 w-4 mr-2 mt-1 sm:mt-0 animate-pulse shrink-0" />
+                            <span className="break-words">{loadingMessage}</span>
                           </p>
-                          <p className="text-xs text-gray-400">正在通过深度学习分析植物形态特征...</p>
+                          <p className="text-[10px] sm:text-xs text-gray-400">正在通过深度学习分析植物形态特征...</p>
                         </div>
-                        <span className="text-2xl font-bold text-green-600 tabular-nums">{Math.round(progress)}%</span>
+                        <span className="text-xl sm:text-2xl font-bold text-green-600 tabular-nums self-end sm:self-auto">{Math.round(progress)}%</span>
                       </div>
 
                       <div className="relative pt-1">
@@ -382,34 +382,34 @@ const PlantIdentifier = () => {
                   <div className="space-y-4">
                     {filteredResults.map((familyResult, index) => (
                       <div key={familyResult.familyId}>
-                        <div className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                          <div className="flex-shrink-0 w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span className="text-2xl font-bold text-green-600">{(familyResult.aiScore * 100).toFixed(0)}%</span>
+                        <div className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span className="text-xl sm:text-2xl font-bold text-green-600">{(familyResult.aiScore * 100).toFixed(0)}%</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <div>
-                                <h3 className="text-lg font-semibold text-gray-900">
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2 sm:mb-1">
+                              <div className="min-w-0">
+                                <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                                   {familyResult.name || familyResult.familyId}
                                 </h3>
                                 {familyResult.latinName && (
-                                  <p className="text-sm text-gray-500 italic">
+                                  <p className="text-xs sm:text-sm text-gray-500 italic break-words">
                                     {familyResult.latinName}
                                   </p>
                                 )}
                               </div>
-                              <Badge variant="default" className="bg-blue-500 text-white text-xs whitespace-nowrap">
+                              <Badge variant="default" className="bg-blue-500 text-white text-[10px] sm:text-xs w-fit shrink-0">
                                 AI匹配特征: {familyResult.matchingTrait}
                               </Badge>
                             </div>
                              {familyResult.description && (
-                              <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                              <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2">
                                 {familyResult.description}
                               </p>
                             )}
                             <Link to={`/encyclopedia/${familyResult.familyId}`}>
-                              <Button size="sm" variant="outline" className="mt-2">
-                                <ExternalLink className="h-4 w-4 mr-1" />
+                              <Button size="sm" variant="outline" className="mt-2 text-xs sm:text-sm">
+                                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                 查看图鉴详情
                               </Button>
                             </Link>
