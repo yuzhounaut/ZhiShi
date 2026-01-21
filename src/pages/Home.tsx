@@ -115,12 +115,12 @@ const Home = () => {
                       <CardDescription className="text-gray-500 italic text-sm">{family.latinName}</CardDescription>
                     </div>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
-                      {family.commonSpecies.length} 种
+                      {family.sourceType}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-3 text-sm leading-relaxed line-clamp-3">{family.description}</p>
+                  <p className="text-gray-600 mb-3 text-sm leading-relaxed line-clamp-3">{family.memoryModule}</p>
                   <Link to={`/quiz/${family.id}`}>
                     <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
                       开始挑战

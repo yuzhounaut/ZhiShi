@@ -6,8 +6,6 @@ import { plantFamilies } from '@/data/plantData';
 import { BookOpenText, Image as ImageIcon } from 'lucide-react';
 
 const QuizSelectionPage = () => {
-  // For now, let's take all families. If you specifically need only 10, we can slice it.
-  // const familiesToDisplay = plantFamilies.slice(0, 10);
   const familiesToDisplay = plantFamilies;
 
   return (
@@ -29,17 +27,17 @@ const QuizSelectionPage = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card for the new Image Quiz */}
-            <Card className="hover:shadow-xl transition-shadow duration-300 border-indigo-200 flex flex-col bg-white lg:col-span-1 md:col-span-2">
+            {/* Card for the Morphology Image Quiz */}
+            <Card className="hover:shadow-xl transition-shadow duration-300 border-indigo-200 flex flex-col bg-white">
                  <CardHeader>
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <CardTitle className="text-indigo-700 text-2xl">拓展模块</CardTitle>
+                      <CardTitle className="text-indigo-700 text-2xl">形态学模块</CardTitle>
                       <CardDescription className="text-gray-500">图文双向练习</CardDescription>
                     </div>
                     <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 whitespace-nowrap">
                       <ImageIcon className="h-4 w-4 mr-1"/>
-                      新功能
+                      练习
                     </Badge>
                   </div>
                 </CardHeader>
@@ -57,8 +55,6 @@ const QuizSelectionPage = () => {
                 </div>
             </Card>
 
-            {/* Spacer or separator if needed, for now grid handles it */}
-
             {familiesToDisplay.map((family) => (
               <Card key={family.id} className="hover:shadow-xl transition-shadow duration-300 border-yellow-200 flex flex-col bg-white">
                 <CardHeader>
@@ -68,13 +64,13 @@ const QuizSelectionPage = () => {
                       <CardDescription className="text-gray-500 italic">{family.latinName}</CardDescription>
                     </div>
                     <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
-                      {family.commonSpecies.length} 常见种
+                      {family.sourceType}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-4">
-                    {family.description}
+                    {family.memoryModule}
                   </p>
                 </CardContent>
                 <div className="p-6 pt-0">

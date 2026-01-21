@@ -37,20 +37,11 @@ const PlantIdentifier = () => {
   const [loadingMessage, setLoadingMessage] = useState('正在鉴定中...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Create a flat list of all traits from all families to serve as the AI's search space.
-  // This is memoized to avoid re-computation on every render.
+  // Create a flat list of all trait segments from the identification module
   const traitCorpus = useMemo<TraitCorpusItem[]>(() => {
     return plantFamilies.flatMap(family => {
-      const allTraits = [
-        ...family.traits.growth,
-        ...family.traits.root,
-        ...family.traits.stem,
-        ...family.traits.leaf,
-        ...family.traits.flower,
-        ...family.traits.fruit,
-      ];
-      // Create a unique set of traits for the family to avoid duplicates in the corpus
-      return [...new Set(allTraits)].map(trait => ({
+      const segments = family.identificationModule.split(/[。；,，]/).map(s => s.trim()).filter(Boolean);
+      return segments.map(trait => ({
         familyId: family.id,
         trait: trait,
       }));
@@ -88,7 +79,7 @@ const PlantIdentifier = () => {
             familyId: familyId,
             name: familyInfo?.chineseName,
             latinName: familyInfo?.latinName,
-            description: familyInfo?.description,
+            description: familyInfo?.memoryModule,
             aiScore: result.score,
             matchingTrait: result.text,
           });
@@ -107,7 +98,7 @@ const PlantIdentifier = () => {
     }
   };
 
-  // Filtering logic remains, but now it filters the AI results
+  // Filtering logic based on selected structured traits
   const filteredResults = useMemo(() => {
     if (selectedTraits.length === 0) {
       return aiResults;
@@ -123,12 +114,11 @@ const PlantIdentifier = () => {
         const family = plantFamilies.find(f => f.id === result.familyId);
         if (!family) return false;
 
-        const familyTraitNames = [
-            ...family.traits.growth, ...family.traits.root, ...family.traits.stem,
-            ...family.traits.leaf, ...family.traits.flower, ...family.traits.fruit
-        ];
+        const familyTraitNames = Object.values(family.traits || {}).flat();
 
-        return selectedTraitNames.every(selectedName => familyTraitNames.includes(selectedName!));
+        return selectedTraitNames.every(selectedName =>
+          familyTraitNames.some(ftn => (ftn as string).includes(selectedName!) || selectedName!.includes(ftn as string))
+        );
     });
   }, [aiResults, selectedTraits]);
 

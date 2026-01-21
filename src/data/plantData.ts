@@ -1,12 +1,21 @@
+import plantFamiliesData from './plantFamilies.json';
+
 export interface PlantFamily {
   id: string;
+  sequenceNumber: number;
+  category: number;
   chineseName: string;
+  sourceType: string;
+  familyOrder: number;
   latinName: string;
-  description: string;
-  characteristics: string[];
-  commonSpecies: string[];
-  images: string[];
-  traits: {
+  memoryModule: string;
+  identificationModule: string;
+  // Compatibility fields
+  description?: string;
+  characteristics?: string[];
+  commonSpecies?: string[];
+  images?: string[];
+  traits?: {
     growth: string[];
     root: string[];
     stem: string[];
@@ -80,6 +89,54 @@ export const plantTraits: PlantTrait[] = [
   { id: 'spikelet', category: '花特征', name: '小穗', description: '禾本科植物的基本花序单位' }
 ];
 
+// Helper to parse identificationModule into structured traits
+const parseTraits = (idModule: string) => {
+  const traits: any = {
+    growth: [],
+    root: [],
+    stem: [],
+    leaf: [],
+    flower: [],
+    fruit: []
+  };
+
+  const textSegments = idModule.split(/[。；,，]/).map(s => s.trim()).filter(Boolean);
+
+  textSegments.forEach(segment => {
+    plantTraits.forEach(trait => {
+      if (segment.includes(trait.name) || trait.name.includes(segment)) {
+        switch (trait.category) {
+          case '生长习性': traits.growth.push(trait.name); break;
+          case '根特征': traits.root.push(trait.name); break;
+          case '茎特征': traits.stem.push(trait.name); break;
+          case '叶特征': traits.leaf.push(trait.name); break;
+          case '花特征': traits.flower.push(trait.name); break;
+          case '果实特征': traits.fruit.push(trait.name); break;
+        }
+      }
+    });
+  });
+
+  // Deduplicate
+  Object.keys(traits).forEach(key => {
+    traits[key] = [...new Set(traits[key])];
+  });
+
+  return traits;
+};
+
+// Map CSV data to PlantFamily interface
+export const plantFamilies: PlantFamily[] = (plantFamiliesData as any[]).map(item => {
+  return {
+    ...item,
+    description: item.memoryModule,
+    characteristics: item.memoryModule.split(/[。；]/).filter(Boolean),
+    traits: parseTraits(item.identificationModule),
+    commonSpecies: [],
+    images: []
+  };
+});
+
 // --- New Data for Module 4: Morphology Image Quiz ---
 
 export interface MorphologyQuizItem {
@@ -140,195 +197,14 @@ export const morphologyQuizData: MorphologyQuizItem[] = [
   }
 ];
 
-export const plantFamilies: PlantFamily[] = [
-  {
-    id: 'rosaceae',
-    chineseName: '蔷薇科',
-    latinName: 'Rosaceae',
-    description: '蔷薇科是被子植物中的大科之一，包含多种经济植物如苹果、梨、桃等。',
-    characteristics: [
-      '花通常5数，花瓣5片',
-      '雄蕊多数，常为花瓣数的倍数',
-      '心皮1至多数，离生或合生',
-      '叶多互生，有托叶'
-    ],
-    commonSpecies: ['玫瑰', '苹果', '樱花', '草莓', '山楂'],
-    images: ['/images/rosaceae_1.jpg', '/images/rosaceae_2.jpg'],
-    traits: {
-      growth: ['灌木', '乔木'],
-      root: ['主根系'],
-      stem: ['木质茎'],
-      leaf: ['叶互生', '单叶', '复叶'],
-      flower: ['辐射对称'],
-      fruit: ['浆果', '蒴果', '核果', '梨果']
-    }
-  },
-  {
-    id: 'leguminosae',
-    chineseName: '豆科',
-    latinName: 'Leguminosae',
-    description: '豆科是植物界第三大科，具有固氮能力，对生态系统具有重要意义。',
-    characteristics: [
-      '花冠蝶形，由旗瓣、翼瓣和龙骨瓣组成',
-      '雄蕊10枚，常为二体雄蕊',
-      '果实为荚果',
-      '根部常有根瘤菌共生'
-    ],
-    commonSpecies: ['大豆', '豌豆', '槐树', '紫荆', '合欢'],
-    images: ['/images/leguminosae_1.jpg', '/images/leguminosae_2.jpg'],
-    traits: {
-      growth: ['草本', '灌木', '乔木'],
-      root: ['主根系', '根瘤'],
-      stem: ['草质茎', '木质茎'],
-      leaf: ['叶互生', '复叶'],
-      flower: ['两侧对称'],
-      fruit: ['荚果']
-    }
-  },
-  {
-    id: 'compositae',
-    chineseName: '菊科',
-    latinName: 'Compositae',
-    description: '菊科是被子植物中最大的科之一，花序为头状花序，是其显著特征。',
-    characteristics: [
-      '头状花序，由多数小花组成',
-      '花冠管状或舌状',
-      '雄蕊5枚，聚药',
-      '果实为瘦果，常有冠毛'
-    ],
-    commonSpecies: ['菊花', '向日葵', '蒲公英', '雏菊', '艾草'],
-    images: ['/images/compositae_1.jpg', '/images/compositae_2.jpg'],
-    traits: {
-      growth: ['草本'],
-      root: ['主根系'],
-      stem: ['草质茎'],
-      leaf: ['叶互生', '叶对生'],
-      flower: ['辐射对称', '管状花冠', '舌状花冠'],
-      fruit: ['瘦果']
-    }
-  },
-  {
-    id: 'labiatae',
-    chineseName: '唇形科',
-    latinName: 'Labiatae',
-    description: '唇形科植物多含芳香油，茎常呈四棱形，花冠二唇形是其典型特征。',
-    characteristics: [
-      '茎常四棱形',
-      '叶对生',
-      '花冠二唇形',
-      '雄蕊4枚，二强雄蕊'
-    ],
-    commonSpecies: ['薄荷', '薰衣草', '迷迭香', '鼠尾草', '丹参'],
-    images: ['/images/labiatae_1.jpg', '/images/labiatae_2.jpg'],
-    traits: {
-      growth: ['草本'],
-      root: ['须根系'],
-      stem: ['方茎', '四棱茎'],
-      leaf: ['叶对生', '单叶'],
-      flower: ['两侧对称', '唇形花冠'],
-      fruit: ['瘦果']
-    }
-  },
-  {
-    id: 'cruciferae',
-    chineseName: '十字花科',
-    latinName: 'Cruciferae',
-    description: '十字花科因其四片花瓣呈十字形排列而得名，包含许多重要的蔬菜作物。',
-    characteristics: [
-      '花瓣4片，呈十字形排列',
-      '雄蕊6枚，四长二短',
-      '果实为角果',
-      '叶多互生'
-    ],
-    commonSpecies: ['白菜', '萝卜', '芥菜', '油菜', '紫甘蓝'],
-    images: ['/images/cruciferae_1.jpg', '/images/cruciferae_2.jpg'],
-    traits: {
-      growth: ['草本'],
-      root: ['主根系'],
-      stem: ['草质茎'],
-      leaf: ['叶互生', '单叶'],
-      flower: ['辐射对称', '十字形花冠'],
-      fruit: ['角果']
-    }
-  },
-  {
-    id: 'solanaceae',
-    chineseName: '茄科',
-    latinName: 'Solanaceae',
-    description: '茄科包含许多重要的经济植物，如番茄、马铃薯等，部分植物含有生物碱。',
-    characteristics: [
-      '花冠合瓣，通常5裂',
-      '雄蕊5枚，着生于花冠筒上',
-      '果实为浆果或蒴果',
-      '叶多互生'
-    ],
-    commonSpecies: ['番茄', '马铃薯', '茄子', '辣椒', '烟草'],
-    images: ['/images/solanaceae_1.jpg', '/images/solanaceae_2.jpg'],
-    traits: {
-      growth: ['草本'],
-      root: ['主根系'],
-      stem: ['草质茎'],
-      leaf: ['叶互生', '单叶'],
-      flower: ['辐射对称', '管状花冠'],
-      fruit: ['浆果']
-    }
-  },
-  {
-    id: 'liliaceae',
-    chineseName: '百合科',
-    latinName: 'Liliaceae',
-    description: '百合科是单子叶植物中的大科，多为多年生草本，具根状茎、鳞茎或块茎。',
-    characteristics: [
-      '花基数常为3',
-      '花被片6枚，2轮排列',
-      '雄蕊6枚',
-      '子房上位'
-    ],
-    commonSpecies: ['百合', '郁金香', '贝母', '黄精'],
-    images: ['/images/liliaceae_1.jpg', '/images/liliaceae_2.jpg'],
-    traits: {
-      growth: ['草本'],
-      root: ['须根系', '鳞茎', '根状茎'],
-      stem: ['直立茎'],
-      leaf: ['单叶', '叶平行脉'],
-      flower: ['辐射对称'],
-      fruit: ['蒴果', '浆果']
-    }
-  },
-  {
-    id: 'gramineae',
-    chineseName: '禾本科',
-    latinName: 'Gramineae (Poaceae)',
-    description: '禾本科是单子叶植物中最重要的科之一，包括了世界上大部分的粮食作物。',
-    characteristics: [
-      '茎有节和节间，节间中空',
-      '叶鞘开裂，有叶舌',
-      '花序为小穗',
-      '果实为颖果'
-    ],
-    commonSpecies: ['水稻', '小麦', '玉米', '竹子', '高粱'],
-    images: ['/images/gramineae_1.jpg', '/images/gramineae_2.jpg'],
-    traits: {
-      growth: ['草本'],
-      root: ['须根系'],
-      stem: ['茎中空', '有节'],
-      leaf: ['单叶', '叶鞘', '叶舌'],
-      flower: ['小穗'],
-      fruit: ['颖果']
-    }
-  }
-];
-
-// --- New Quiz Question Data Structure and Examples ---
-
 export interface QuizQuestion {
-  familyId: string; // Corresponds to PlantFamily id
-  questionId: string; // Unique ID for the question
-  prompt: string; // The question text presented to the user
-  targetFeatureCategory: string; // e.g., "叶", "花", "果实", "茎" - helps guide the user
-  acceptableKeywords: string[]; // Array of correct keyword answers (case-insensitive)
-  points: number; // Points awarded for a correct answer
-  imageUrl?: string; // Optional image URL for the question
+  familyId: string;
+  questionId: string;
+  prompt: string;
+  targetFeatureCategory: string;
+  acceptableKeywords: string[];
+  points: number;
+  imageUrl?: string;
 }
 
 export const quizQuestions: QuizQuestion[] = [
@@ -380,4 +256,4 @@ export const quizQuestions: QuizQuestion[] = [
     acceptableKeywords: ["增大", "宿存", "宿存并增大", "浆果", "蒴果"],
     points: 20,
   }
-];
+].filter(q => plantFamilies.some(f => f.id === q.familyId));

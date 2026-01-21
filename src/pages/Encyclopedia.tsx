@@ -21,9 +21,8 @@ const Encyclopedia = () => {
   const filteredFamilies = plantFamilies.filter(family =>
     family.chineseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     family.latinName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    family.commonSpecies.some(species => 
-      species.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    family.memoryModule.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    family.identificationModule.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -45,7 +44,7 @@ const Encyclopedia = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="搜索植物科名或常见植物..."
+                placeholder="搜索植物科名或特征关键词..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -65,42 +64,14 @@ const Encyclopedia = () => {
                     <p className="text-gray-500 italic text-sm">{family.latinName}</p>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    {family.commonSpecies.length} 种
+                    {family.sourceType}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-3">
-                  {family.description}
+                <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-4">
+                  {family.memoryModule}
                 </p>
-                
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">主要特征：</p>
-                  <ul className="text-xs text-gray-600 space-y-1">
-                    {family.characteristics.slice(0, 2).map((char, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-green-600 mr-1">•</span>
-                        {char}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">常见植物：</p>
-                  <div className="flex flex-wrap gap-1">
-                    {family.commonSpecies.slice(0, 3).map((species) => (
-                      <Badge key={species} variant="outline" className="text-xs">
-                        {species}
-                      </Badge>
-                    ))}
-                    {family.commonSpecies.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{family.commonSpecies.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
 
                 <div className="flex gap-2">
                   <Link to={`/encyclopedia/${family.id}`} className="flex-1">
@@ -129,6 +100,18 @@ const Encyclopedia = () => {
             </p>
           </div>
         )}
+
+        {/* Note Footer */}
+        <div className="mt-16 p-6 bg-white rounded-lg border border-gray-200 shadow-sm text-sm text-gray-600 leading-relaxed">
+          <p className="font-semibold mb-2 text-gray-800">被子植物科筛选依据：</p>
+          <ol className="list-decimal list-inside space-y-2">
+            <li>药典药材数量2及以上的科68个，药材数量1来源物种2及以上的科11个，药材数量1来源物种1较常见科20个，计99科；</li>
+            <li>地方特色科筛选9个；</li>
+            <li>新拆科6个（睡莲科拆出莲科，木兰科拆出五味子科，百合科拆出藜芦科、菝葜科、天门冬科，毛茛科拆出芍药科）；</li>
+            <li>合并科扣去9个（紫金牛科并入报春花科，藜科并入苋科，浮萍科并入天南星科，七叶树科并入无患子科，木棉科并入锦葵科，鹿蹄草科并入杜鹃花科，败酱科/川续断科并入忍冬科，萝藦科并入夹竹桃科，石榴科并入千屈菜科但该科仅石榴1种药材故科数不减）；</li>
+          </ol>
+          <p className="mt-2 font-medium">共计105科。</p>
+        </div>
       </div>
     </div>
   );
@@ -168,7 +151,7 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
               <p className="text-gray-500 italic text-lg">{family.latinName}</p>
             </div>
             <Badge variant="secondary" className="bg-green-100 text-green-800 text-sm px-3 py-1">
-              {family.commonSpecies.length} 种植物
+              {family.sourceType}
             </Badge>
           </div>
         </div>
@@ -177,10 +160,10 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
           {/* Main Description */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-800">科属简介</CardTitle>
+              <CardTitle className="text-green-800">科特征记忆模块</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 leading-relaxed">{family.description}</p>
+              <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">{family.memoryModule}</p>
             </CardContent>
           </Card>
 
@@ -207,109 +190,48 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
             </CardContent>
           </Card>
 
-          {/* Main Characteristics */}
+          {/* AI Identification Module */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-800">主要特征</CardTitle>
+              <CardTitle className="text-green-800">未知科检索模块 (AI 识别参考)</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                {family.characteristics.map((char, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5">
-                      {index + 1}
-                    </span>
-                    <span className="text-gray-700">{char}</span>
-                  </li>
+              <ul className="list-disc list-inside space-y-2 text-gray-700 italic">
+                {family.identificationModule.split(/[。；]/).filter(s => s.trim()).map((trait, idx) => (
+                  <li key={idx}>{trait.trim()}</li>
                 ))}
               </ul>
             </CardContent>
           </Card>
 
-          {/* Common Species */}
+          {/* Trait Details (Parsed) */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-800">常见植物</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {family.commonSpecies.map((species) => (
-                  <div key={species} className="bg-gray-50 rounded-lg p-3 text-center">
-                    <div className="text-2xl mb-1">🌱</div>
-                    <p className="text-sm font-medium text-gray-800">{species}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Trait Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-green-800">特征详情</CardTitle>
+              <CardTitle className="text-green-800">结构化特征详情</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-x-6 gap-y-8">
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-3">生长习性</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {family.traits.growth.map((trait) => (
-                      <Badge key={trait} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-3">根部特征</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {family.traits.root.map((trait) => (
-                      <Badge key={trait} variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-3">茎部特征</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {family.traits.stem.map((trait) => (
-                      <Badge key={trait} variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-3">叶部特征</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {family.traits.leaf.map((trait) => (
-                      <Badge key={trait} variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-3">花部特征</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {family.traits.flower.map((trait) => (
-                      <Badge key={trait} variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-800 mb-3">果实特征</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {family.traits.fruit.map((trait) => (
-                      <Badge key={trait} variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+                {Object.entries(family.traits || {}).map(([category, traits]) => (
+                  (traits as string[]).length > 0 && (
+                    <div key={category}>
+                      <h4 className="font-medium text-gray-800 mb-3 capitalize">
+                        {category === 'growth' ? '生长习性' :
+                         category === 'root' ? '根部特征' :
+                         category === 'stem' ? '茎部特征' :
+                         category === 'leaf' ? '叶部特征' :
+                         category === 'flower' ? '花部特征' :
+                         category === 'fruit' ? '果实特征' : category}
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {(traits as string[]).map((trait) => (
+                          <Badge key={trait} variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                            {trait}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                ))}
               </div>
             </CardContent>
           </Card>
