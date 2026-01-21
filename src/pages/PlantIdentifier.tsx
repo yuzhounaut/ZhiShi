@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,9 @@ import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { plantFamilies, plantTraits } from '@/data/plantData';
 import { semanticSearch } from '@/lib/ai';
-import { Bot, Search, RotateCcw, ExternalLink, Filter, Eraser, Sparkles } from 'lucide-react';
+import { Bot, Search, RotateCcw, ExternalLink, Filter, Eraser, Sparkles, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 
 // Data structure for our AI search corpus
 interface TraitCorpusItem {
@@ -32,10 +33,21 @@ const PlantIdentifier = () => {
   const [userQuery, setUserQuery] = useState('');
   const [aiResults, setAiResults] = useState<AIIdentificationResultItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
   const [loadingMessage, setLoadingMessage] = useState('正在鉴定中...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Create a flat list of all trait segments from the identification module
   const traitCorpus = useMemo<TraitCorpusItem[]>(() => {
@@ -52,17 +64,30 @@ const PlantIdentifier = () => {
     if (!userQuery.trim()) return;
 
     setIsLoading(true);
+    setProgress(0);
     setSearchPerformed(true);
     setAiResults([]);
     setErrorMessage(null);
 
+    // Simulate progress while AI is working
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+
+    progressIntervalRef.current = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) return prev + 0.5 > 98 ? 98 : prev + 0.1;
+        return prev + 5;
+      });
+    }, 300);
+
     try {
       setLoadingMessage('正在唤醒AI模型，首次启动可能需要一点时间...');
+      setProgress(10);
 
       const corpusTexts = traitCorpus.map(item => item.trait);
       const searchResults = await semanticSearch(userQuery, corpusTexts);
 
       setLoadingMessage('正在分析特征...');
+      setProgress(80);
 
       // A map to store the best result for each family
       const bestResultsMap = new Map<string, AIIdentificationResultItem>();
@@ -89,12 +114,24 @@ const PlantIdentifier = () => {
       const finalResults = Array.from(bestResultsMap.values());
       finalResults.sort((a, b) => b.aiScore - a.aiScore);
 
-      setAiResults(finalResults);
+      setProgress(100);
+      // Small delay to show 100% completion
+      setTimeout(() => {
+        setAiResults(finalResults);
+        setIsLoading(false);
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+      }, 500);
     } catch (error) {
       console.error("AI Search Failed:", error);
       setErrorMessage("AI模型加载或分析失败。请检查模型文件是否正确放置在public目录下，或刷新页面重试。");
-    } finally {
       setIsLoading(false);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
     }
   };
 
@@ -276,9 +313,46 @@ const PlantIdentifier = () => {
               </CardHeader>
               <CardContent>
                 {isLoading ? (
-                  <div className="text-center py-12">
-                    <Bot className="h-12 w-12 text-green-600 animate-spin mx-auto mb-4" />
-                    <p className="text-lg font-medium text-gray-700">{loadingMessage}</p>
+                  <div className="flex flex-col items-center justify-center py-12 space-y-8 animate-in fade-in duration-500">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-green-200 rounded-full blur-2xl animate-pulse opacity-60"></div>
+                      <div className="relative bg-white p-6 rounded-full shadow-lg border-2 border-green-100">
+                        <Bot className="h-16 w-16 text-green-600 animate-bounce" />
+                        <div className="absolute -top-1 -right-1">
+                          <Loader2 className="h-6 w-6 text-green-400 animate-spin" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full max-w-md space-y-4">
+                      <div className="flex justify-between items-end mb-1">
+                        <div className="space-y-1">
+                          <p className="text-lg font-semibold text-green-800 flex items-center">
+                            <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                            {loadingMessage}
+                          </p>
+                          <p className="text-xs text-gray-400">正在通过深度学习分析植物形态特征...</p>
+                        </div>
+                        <span className="text-2xl font-bold text-green-600 tabular-nums">{Math.round(progress)}%</span>
+                      </div>
+
+                      <div className="relative pt-1">
+                        <Progress value={progress} className="h-3 w-full bg-green-50 shadow-inner" />
+                        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-full">
+                           <div className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer -translate-x-full"></div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 mt-4">
+                        <div className={`h-1 rounded-full transition-colors duration-500 ${progress > 20 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                        <div className={`h-1 rounded-full transition-colors duration-500 ${progress > 50 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                        <div className={`h-1 rounded-full transition-colors duration-500 ${progress > 80 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-gray-500 italic animate-pulse">
+                      提示：描述越详细（如叶形、花色、茎的形状），鉴定越准确。
+                    </p>
                   </div>
                 ) : errorMessage ? (
                   <div className="text-center py-12 text-red-600">
