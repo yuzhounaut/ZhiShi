@@ -64,19 +64,32 @@ const Home = () => {
 
       {/* Secondary Features */}
       <section className="mb-16">
-        <div className="container mx-auto max-w-4xl text-center">
+        <div className="container mx-auto max-w-5xl text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">探索更多功能</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <Link to="/encyclopedia" className="block">
-              <Card className="hover:shadow-lg transition-shadow duration-300 h-full">
+          <div className="grid md:grid-cols-3 gap-6">
+            <Link to="/encyclopedia/atlas" className="block">
+              <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
                 <CardHeader>
                   <div className="flex items-center text-green-600">
-                    <BookMarked className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">植物图鉴</CardTitle>
+                    <BookOpen className="h-8 w-8 mr-3" />
+                    <CardTitle className="text-xl">名词图鉴</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">浏览详细的植物科属信息，了解更多植物知识</p>
+                  <p className="text-gray-600 text-sm">通过层级分类浏览植物名词与形态图片</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/encyclopedia/families" className="block">
+              <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
+                <CardHeader>
+                  <div className="flex items-center text-green-700">
+                    <BookMarked className="h-8 w-8 mr-3" />
+                    <CardTitle className="text-xl">科图鉴</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-sm">浏览详细的植物科属特征与识别要点</p>
                 </CardContent>
               </Card>
             </Link>

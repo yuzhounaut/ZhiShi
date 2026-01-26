@@ -74,7 +74,7 @@ const Encyclopedia = () => {
                 </p>
 
                 <div className="flex gap-2">
-                  <Link to={`/encyclopedia/${family.id}`} className="flex-1">
+                  <Link to={`/encyclopedia/families/${family.id}`} className="flex-1">
                     <Button className="w-full bg-green-600 hover:bg-green-700" size="sm">
                       <ExternalLink className="h-4 w-4 mr-1" />
                       查看详情
@@ -127,7 +127,7 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-bold mb-4">未找到该植物科</h2>
             <p className="text-gray-600 mb-4">请检查链接是否正确</p>
-            <Link to="/encyclopedia">
+            <Link to="/encyclopedia/families">
               <Button>返回图鉴列表</Button>
             </Link>
           </CardContent>
@@ -141,7 +141,7 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <Link to="/encyclopedia" className="inline-flex items-center text-green-600 hover:text-green-700 mb-4">
+          <Link to="/encyclopedia/families" className="inline-flex items-center text-green-600 hover:text-green-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回图鉴列表
           </Link>
