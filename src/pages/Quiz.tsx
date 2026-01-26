@@ -95,7 +95,16 @@ const SequentialQuiz = () => {
     const aiResults = await semanticSearch(userAnswer, correctAnswers);
     const topScore = aiResults.length > 0 ? aiResults[0].score : 0;
 
-    const correct = topScore >= CORRECTNESS_THRESHOLD;
+    let correct = topScore >= CORRECTNESS_THRESHOLD;
+
+    // 优化短答案匹配：如果是单字，必须是正确答案中的某个词的精确匹配
+    // 避免“本”匹配到“草本”或“多年生”的情况
+    if (userAnswer.trim().length <= 1) {
+      const isExactMatch = correctAnswers.some(ans => ans === userAnswer.trim());
+      if (!isExactMatch) {
+        correct = false;
+      }
+    }
 
     setIsCorrect(correct);
     // Only record the result if the answer is correct, to enforce the "must answer correctly" rule
