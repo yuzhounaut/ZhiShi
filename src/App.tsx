@@ -12,9 +12,18 @@ import Atlas from './pages/Atlas';
 import NotFound from './pages/NotFound';
 import QuizSelectionPage from './pages/QuizSelectionPage'; // Import the new page
 
+import { useEffect } from 'react';
+import { preloadAI } from '@/lib/ai';
+
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    // Silently preload AI model and embeddings in the background
+    preloadAI();
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -37,6 +46,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
