@@ -43,19 +43,25 @@ async function generate() {
     }
   }
 
-  const result = {
-    traits: traitCorpus,
-    embeddings: allEmbeddings,
-    dims: 512,
-  };
-
   const outputDir = './public/data';
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  const outputPath = path.join(outputDir, 'precomputedEmbeddings.json');
-  fs.writeFileSync(outputPath, JSON.stringify(result));
-  console.log(`Successfully saved embeddings to ${outputPath}`);
+
+  // Save metadata (traits and dims) to JSON
+  const traitsPath = path.join(outputDir, 'precomputedTraits.json');
+  fs.writeFileSync(traitsPath, JSON.stringify({
+    traits: traitCorpus,
+    dims: 512
+  }));
+  console.log(`Successfully saved traits metadata to ${traitsPath}`);
+
+  // Save embeddings to binary file (Float32Array)
+  const embeddingsPath = path.join(outputDir, 'precomputedEmbeddings.bin');
+  const floatArray = new Float32Array(allEmbeddings);
+  const buffer = Buffer.from(floatArray.buffer);
+  fs.writeFileSync(embeddingsPath, buffer);
+  console.log(`Successfully saved binary embeddings to ${embeddingsPath}`);
 }
 
 generate().catch(error => {
