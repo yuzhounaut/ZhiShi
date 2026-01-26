@@ -85,8 +85,8 @@ const PlantIdentifier = () => {
     }, 300);
 
     try {
-      setLoadingMessage('正在唤醒AI模型，首次启动可能需要一点时间...');
-      setProgress(10);
+      setLoadingMessage('正在准备智能鉴定资源...');
+      setProgress(20);
 
       // Split query into segments for multi-trait matching
       const querySegments = userQuery.split(/[。；,，\n]/).map(s => s.trim()).filter(Boolean);
@@ -97,9 +97,11 @@ const PlantIdentifier = () => {
       }
 
       const corpusTexts = traitCorpus.map(item => item.trait);
+
+      // The AI will use precomputed embeddings if available, making this much faster
       const batchResults = await semanticSearchBatch(querySegments, corpusTexts);
 
-      setLoadingMessage('正在综合分析多个特征...');
+      setLoadingMessage('正在深度分析植物形态特征...');
       setProgress(80);
 
       // For each family, we want to find how well it matches ALL query segments
