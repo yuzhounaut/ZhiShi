@@ -78,7 +78,7 @@ export const semanticSearch = async (query: string, corpus: string[]): Promise<S
   // Calculate cosine similarity between the query and each corpus item
   const results: SemanticSearchResult[] = [];
   for (let i = 0; i < corpus.length; ++i) {
-    const corpusTensor = corpus_embeddings.data.slice(i * query_embedding.dims[1], (i + 1) * query_embedding.dims[1]);
+    const corpusTensor = corpus_embeddings.data.subarray(i * query_embedding.dims[1], (i + 1) * query_embedding.dims[1]);
     const score = cos_sim(queryTensor, corpusTensor);
     results.push({ corpus_id: i, score, text: corpus[i] });
   }
@@ -87,4 +87,56 @@ export const semanticSearch = async (query: string, corpus: string[]): Promise<S
   results.sort((a, b) => b.score - a.score);
 
   return results;
+};
+
+/**
+ * Performs batch semantic search by comparing multiple query strings against a corpus of text.
+ * @param queries An array of user search queries.
+ * @param corpus An array of strings to search against.
+ * @returns A promise that resolves to an array of arrays, where each inner array contains the search results for one query.
+ */
+export const semanticSearchBatch = async (queries: string[], corpus: string[]): Promise<SemanticSearchResult[][]> => {
+  if (!queries || queries.length === 0 || !corpus || corpus.length === 0) {
+    return [];
+  }
+
+  const extractor = await PipelineSingleton.getInstance();
+
+  // Embed all queries in one batch for better performance
+  const query_embeddings = await extractor(queries, { pooling: 'mean', normalize: true });
+  const dims = query_embeddings.dims[1];
+
+  // Check if we can use cached corpus embeddings
+  let corpus_embeddings;
+  const corpusChanged = !cachedCorpus ||
+                        cachedCorpus.length !== corpus.length ||
+                        cachedCorpus[0] !== corpus[0] ||
+                        cachedCorpus[cachedCorpus.length - 1] !== corpus[corpus.length - 1];
+
+  if (corpusChanged) {
+    corpus_embeddings = await extractor(corpus, { pooling: 'mean', normalize: true });
+    cachedCorpus = [...corpus];
+    cachedCorpusEmbeddings = corpus_embeddings;
+  } else {
+    corpus_embeddings = cachedCorpusEmbeddings;
+  }
+
+  const allResults: SemanticSearchResult[][] = [];
+
+  for (let q = 0; q < queries.length; q++) {
+    const queryTensor = query_embeddings.data.subarray(q * dims, (q + 1) * dims);
+    const results: SemanticSearchResult[] = [];
+
+    for (let i = 0; i < corpus.length; ++i) {
+      const corpusTensor = corpus_embeddings.data.subarray(i * dims, (i + 1) * dims);
+      const score = cos_sim(queryTensor, corpusTensor);
+      results.push({ corpus_id: i, score, text: corpus[i] });
+    }
+
+    // Sort results by score in descending order for this query
+    results.sort((a, b) => b.score - a.score);
+    allResults.push(results);
+  }
+
+  return allResults;
 };
