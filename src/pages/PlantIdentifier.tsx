@@ -93,6 +93,11 @@ const PlantIdentifier = () => {
       const bestResultsMap = new Map<string, AIIdentificationResultItem>();
 
       for (const result of searchResults) {
+        // 优化短查询：如果是单字，必须与特征描述完全一致才被接受
+        if (userQuery.trim().length <= 1 && result.text !== userQuery.trim()) {
+          continue;
+        }
+
         if (result.score < 0.3) continue;
 
         const corpusItem = traitCorpus[result.corpus_id];
@@ -382,39 +387,42 @@ const PlantIdentifier = () => {
                   <div className="space-y-4">
                     {filteredResults.map((familyResult, index) => (
                       <div key={familyResult.familyId}>
-                        <div className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                          <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span className="text-xl sm:text-2xl font-bold text-green-600">{(familyResult.aiScore * 100).toFixed(0)}%</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2 sm:mb-1">
-                              <div className="min-w-0">
-                                <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
-                                  {familyResult.name || familyResult.familyId}
-                                </h3>
-                                {familyResult.latinName && (
-                                  <p className="text-xs sm:text-sm text-gray-500 italic break-words">
-                                    {familyResult.latinName}
-                                  </p>
-                                )}
-                              </div>
-                              <Badge variant="default" className="bg-blue-500 text-white text-[10px] sm:text-xs w-fit shrink-0">
-                                AI匹配特征: {familyResult.matchingTrait}
-                              </Badge>
+                        <Link
+                          to={`/encyclopedia/families/${familyResult.familyId}`}
+                          className="block group"
+                        >
+                          <div className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-green-50/50 transition-all duration-300 border border-transparent hover:border-green-100 hover:shadow-sm">
+                            <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center transition-colors">
+                              <span className="text-xl sm:text-2xl font-bold text-green-600 group-hover:text-green-700">{(familyResult.aiScore * 100).toFixed(0)}%</span>
                             </div>
-                             {familyResult.description && (
-                              <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2">
-                                {familyResult.description}
-                              </p>
-                            )}
-                            <Link to={`/encyclopedia/${familyResult.familyId}`}>
-                              <Button size="sm" variant="outline" className="mt-2 text-xs sm:text-sm">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2 sm:mb-1">
+                                <div className="min-w-0">
+                                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words group-hover:text-green-700 transition-colors">
+                                    {familyResult.name || familyResult.familyId}
+                                  </h3>
+                                  {familyResult.latinName && (
+                                    <p className="text-xs sm:text-sm text-gray-500 italic break-words">
+                                      {familyResult.latinName}
+                                    </p>
+                                  )}
+                                </div>
+                                <Badge variant="default" className="bg-blue-500 text-white text-[10px] sm:text-xs w-fit shrink-0">
+                                  AI匹配特征: {familyResult.matchingTrait}
+                                </Badge>
+                              </div>
+                               {familyResult.description && (
+                                <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2">
+                                  {familyResult.description}
+                                </p>
+                              )}
+                              <div className="inline-flex items-center text-xs sm:text-sm font-medium text-green-600 mt-2 py-1.5 px-3 rounded-md border border-green-200 bg-white group-hover:bg-green-600 group-hover:text-white group-hover:border-green-600 transition-all duration-200">
                                 <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                 查看图鉴详情
-                              </Button>
-                            </Link>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        </Link>
                         {index < filteredResults.length - 1 && <Separator className="my-2" />}
                       </div>
                     ))}
