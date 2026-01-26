@@ -22,7 +22,9 @@ const Encyclopedia = () => {
     family.chineseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     family.latinName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     family.memoryModule.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    family.identificationModule.toLowerCase().includes(searchTerm.toLowerCase())
+    family.identificationModule.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    family.sourceType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    family.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
