@@ -5,24 +5,67 @@ const csvFilePath = path.join(__dirname, '../data/Families_angiosperms.csv');
 const jsonOutputPath = path.join(__dirname, '../src/data/plantFamilies.json');
 
 function parseCSV(csvText) {
-  // Simple CSV parser that handles basic comma separation
-  // Assumes no commas within the fields themselves (they use Chinese commas "，" or "、")
-  const lines = csvText.trim().split(/\r?\n/);
-  const header = lines[0].split(',');
+  const lines = [];
+  let currentLine = [];
+  let currentField = '';
+  let inQuotes = false;
 
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    const nextChar = csvText[i + 1];
+
+    if (inQuotes) {
+      if (char === '"') {
+        if (nextChar === '"') {
+          currentField += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        currentField += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ',') {
+        currentLine.push(currentField.trim());
+        currentField = '';
+      } else if (char === '\r' || char === '\n') {
+        if (currentField || currentLine.length > 0) {
+          currentLine.push(currentField.trim());
+          lines.push(currentLine);
+          currentLine = [];
+          currentField = '';
+        }
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+      } else {
+        currentField += char;
+      }
+    }
+  }
+
+  if (currentField || currentLine.length > 0) {
+    currentLine.push(currentField.trim());
+    lines.push(currentLine);
+  }
+
+  const header = lines[0];
   const results = [];
+
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
+    const row = lines[i];
+    if (row.length < header.length) continue;
 
-    const values = line.split(',');
     const entry = {};
-
     header.forEach((col, index) => {
-      entry[col] = values[index] ? values[index].trim() : '';
+      entry[col] = row[index] || '';
     });
 
-    // Map to our desired structure
+    if (!entry['科拉丁名']) continue;
+
     const mappedEntry = {
       id: entry['科拉丁名'].toLowerCase().replace(/[^a-z0-9]/g, ''),
       sequenceNumber: parseInt(entry['序号']),

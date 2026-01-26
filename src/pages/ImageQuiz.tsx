@@ -1,19 +1,30 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { morphologyQuizData } from '@/data/plantData';
-import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Award, Image as ImageIcon, Type, Shuffle } from 'lucide-react';
-import type { MorphologyQuizItem } from '@/data/plantData';
+import { atlasItems, AtlasItem } from '@/data/atlasData';
+import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Award, Image as ImageIcon, Type } from 'lucide-react';
 
 type QuizMode = 'term-to-image' | 'image-to-term';
 
-const TOTAL_QUESTIONS = 5; // Let's do a short quiz of 5 questions
+const TOTAL_QUESTIONS = 5;
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   return [...array].sort(() => Math.random() - 0.5);
+};
+
+// Helper to get the target noun for an atlas item
+const getTargetNoun = (item: AtlasItem): string => {
+  // For "叶-叶的组成-托叶-托叶刺-枣.JPG", path is ["叶", "叶的组成", "托叶", "托叶刺", "枣"]
+  // User says answer should be "托叶", which is index 2.
+  if (item.path.length >= 4) {
+    return item.path[2]; // e.g., "托叶", "单果", "芽"
+  } else if (item.path.length >= 3) {
+    return item.path[1]; // e.g., "方茎"
+  }
+  return item.path[0];
 };
 
 const ImageQuiz = () => {
@@ -22,34 +33,60 @@ const ImageQuiz = () => {
   const [questionCount, setQuestionCount] = useState(0);
   const [score, setScore] = useState(0);
 
-  const [currentQuestion, setCurrentQuestion] = useState<MorphologyQuizItem | null>(null);
-  const [options, setOptions] = useState<MorphologyQuizItem[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<{ item: AtlasItem, noun: string } | null>(null);
+  const [options, setOptions] = useState<{ item?: AtlasItem, noun?: string }[]>([]);
 
   const [showFeedback, setShowFeedback] = useState(false);
-  const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null); // item.id for image, noun for term
 
-  const isCorrect = useMemo(() => {
-    return selectedAnswerId === currentQuestion?.id;
-  }, [selectedAnswerId, currentQuestion]);
+  // All valid nouns for distractors
+  const allNouns = useMemo(() => {
+    const nouns = new Set<string>();
+    atlasItems.forEach(item => {
+      const noun = getTargetNoun(item);
+      if (noun) nouns.add(noun);
+    });
+    return Array.from(nouns);
+  }, []);
 
   const generateQuestion = (mode: QuizMode) => {
-    // Get one random item for the correct answer
-    const correctIndex = Math.floor(Math.random() * morphologyQuizData.length);
-    const correctItem = morphologyQuizData[correctIndex];
+    // 1. Pick a random item for the correct answer
+    // Filter items to ensure they have enough path depth for a meaningful noun
+    const validItems = atlasItems.filter(item => item.path.length >= 3);
+    const correctItem = validItems[Math.floor(Math.random() * validItems.length)];
+    const correctNoun = getTargetNoun(correctItem);
 
-    // Get 3 other random items for distractors
-    const distractors: MorphologyQuizItem[] = [];
-    while (distractors.length < 3) {
-      const randomIndex = Math.floor(Math.random() * morphologyQuizData.length);
-      const randomItem = morphologyQuizData[randomIndex];
-      // Ensure the distractor is not the correct answer and not already in the list
-      if (randomItem.id !== correctItem.id && !distractors.some(d => d.id === randomItem.id)) {
-        distractors.push(randomItem);
+    if (mode === 'image-to-term') {
+      // Correct answer is the noun
+      // Distractors are other nouns
+      const distractors: string[] = [];
+      while (distractors.length < 3) {
+        const randomNoun = allNouns[Math.floor(Math.random() * allNouns.length)];
+        if (randomNoun !== correctNoun && !distractors.includes(randomNoun)) {
+          distractors.push(randomNoun);
+        }
       }
-    }
 
-    setCurrentQuestion(correctItem);
-    setOptions(shuffleArray([correctItem, ...distractors]));
+      const questionOptions = shuffleArray([correctNoun, ...distractors]).map(n => ({ noun: n }));
+      setCurrentQuestion({ item: correctItem, noun: correctNoun });
+      setOptions(questionOptions);
+    } else {
+      // term-to-image
+      // Correct answer is the item (image)
+      // Distractors are items with DIFFERENT target nouns
+      const distractors: AtlasItem[] = [];
+      while (distractors.length < 3) {
+        const randomItem = validItems[Math.floor(Math.random() * validItems.length)];
+        const randomNoun = getTargetNoun(randomItem);
+        if (randomNoun !== correctNoun && !distractors.some(d => d.id === randomItem.id)) {
+          distractors.push(randomItem);
+        }
+      }
+
+      const questionOptions = shuffleArray([correctItem, ...distractors]).map(item => ({ item }));
+      setCurrentQuestion({ item: correctItem, noun: correctNoun });
+      setOptions(questionOptions);
+    }
   };
 
   const startQuiz = (mode: QuizMode) => {
@@ -57,15 +94,19 @@ const ImageQuiz = () => {
     setQuestionCount(1);
     setScore(0);
     setShowFeedback(false);
-    setSelectedAnswerId(null);
+    setSelectedId(null);
     generateQuestion(mode);
   };
 
-  const handleAnswer = (selectedId: string) => {
-    if (showFeedback) return; // Prevent answering again
+  const handleAnswer = (id: string) => {
+    if (showFeedback) return;
 
-    setSelectedAnswerId(selectedId);
-    if (selectedId === currentQuestion?.id) {
+    setSelectedId(id);
+    const isCorrect = quizMode === 'image-to-term'
+      ? id === currentQuestion?.noun
+      : id === currentQuestion?.item.id;
+
+    if (isCorrect) {
       setScore(prev => prev + 1);
     }
     setShowFeedback(true);
@@ -73,13 +114,12 @@ const ImageQuiz = () => {
 
   const handleNextQuestion = () => {
     if (questionCount >= TOTAL_QUESTIONS) {
-      // End of quiz
-      setQuizMode(null); // This will trigger the results screen
+      setQuizMode(null);
       return;
     }
     setQuestionCount(prev => prev + 1);
     setShowFeedback(false);
-    setSelectedAnswerId(null);
+    setSelectedId(null);
     generateQuestion(quizMode!);
   };
 
@@ -87,12 +127,16 @@ const ImageQuiz = () => {
     setQuizMode(null);
     setQuestionCount(0);
     setScore(0);
-  }
+  };
+
+  const isCurrentCorrect = useMemo(() => {
+    if (quizMode === 'image-to-term') return selectedId === currentQuestion?.noun;
+    return selectedId === currentQuestion?.item.id;
+  }, [selectedId, currentQuestion, quizMode]);
 
   // --- Render Logic ---
 
   if (quizMode === null && questionCount > 0) {
-    // --- Quiz Results Screen ---
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-100 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-2xl shadow-2xl text-center">
@@ -110,7 +154,7 @@ const ImageQuiz = () => {
                 <RotateCcw className="mr-2 h-5 w-5" />
                 重新开始
               </Button>
-              <Button variant="outline" onClick={() => navigate('/')} className="text-indigo-700 border-indigo-500 hover:bg-indigo-50 text-lg py-3">
+              <Button variant="outline" onClick={() => navigate('/quiz')} className="text-indigo-700 border-indigo-500 hover:bg-indigo-50 text-lg py-3">
                 <ArrowLeft className="mr-2 h-5 w-5" />
                 返回主页
               </Button>
@@ -122,27 +166,26 @@ const ImageQuiz = () => {
   }
 
   if (quizMode === null) {
-    // --- Mode Selection Screen ---
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-800">形态学名词练习</h1>
-            <p className="text-lg text-gray-600 mt-2">选择一个模式开始图文双向练习</p>
+            <p className="text-lg text-gray-600 mt-2">使用名词图鉴中的高清图片进行双向练习</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-            <Card onClick={() => startQuiz('term-to-image')} className="hover:shadow-xl hover:border-purple-500 transition-all cursor-pointer">
+            <Card onClick={() => startQuiz('term-to-image')} className="hover:shadow-xl hover:border-purple-500 transition-all cursor-pointer bg-white group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-2xl font-bold text-purple-700">名词认图</CardTitle>
-                    <Type className="h-8 w-8 text-purple-500" />
+                    <ImageIcon className="h-8 w-8 text-purple-500 group-hover:scale-110 transition-transform" />
                 </CardHeader>
                 <CardContent>
-                    <p className="text-gray-600">根据给出的形态学名词，在四张图片中选出正确的图示。</p>
+                    <p className="text-gray-600">根据给出的形态学名词，在四张图中选出正确的图示。</p>
                 </CardContent>
             </Card>
-            <Card onClick={() => startQuiz('image-to-term')} className="hover:shadow-xl hover:border-indigo-500 transition-all cursor-pointer">
+            <Card onClick={() => startQuiz('image-to-term')} className="hover:shadow-xl hover:border-indigo-500 transition-all cursor-pointer bg-white group">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-2xl font-bold text-indigo-700">图片识词</CardTitle>
-                    <ImageIcon className="h-8 w-8 text-indigo-500" />
+                    <Type className="h-8 w-8 text-indigo-500 group-hover:scale-110 transition-transform" />
                 </CardHeader>
                 <CardContent>
                     <p className="text-gray-600">根据给出的特征图片，在四个名词中选出正确的描述。</p>
@@ -153,7 +196,6 @@ const ImageQuiz = () => {
     );
   }
 
-  // --- Main Quiz Screen ---
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col items-center">
       <div className="w-full max-w-4xl">
@@ -173,53 +215,70 @@ const ImageQuiz = () => {
           <Progress value={(questionCount / TOTAL_QUESTIONS) * 100} className="h-2.5 rounded-full" />
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-center text-3xl font-bold text-gray-800 mb-4">
-              {quizMode === 'term-to-image' ? currentQuestion?.term : '这是什么特征？'}
+        <Card className="shadow-lg bg-white overflow-hidden">
+          <CardHeader className="border-b bg-gray-50/50">
+            <CardTitle className="text-center text-2xl sm:text-3xl font-bold text-gray-800">
+              {quizMode === 'term-to-image' ? `请找出：${currentQuestion?.noun}` : '这是什么特征？'}
             </CardTitle>
             {quizMode === 'image-to-term' && (
-              <div className="w-full aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
-                <img src={currentQuestion?.imageUrl} alt={currentQuestion?.term} className="w-full h-full object-contain"/>
+              <div className="w-full aspect-video bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center mt-4">
+                <img
+                  src={currentQuestion?.item.url}
+                  alt="特征图片"
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
             )}
           </CardHeader>
-          <CardContent>
-            <div className={`grid grid-cols-2 gap-4 ${quizMode === 'term-to-image' ? 'aspect-w-16 aspect-h-9' : ''}`}>
-              {options.map(option => (
+          <CardContent className="p-6">
+            <div className={`grid grid-cols-2 gap-4 ${quizMode === 'term-to-image' ? 'sm:grid-cols-2' : 'sm:grid-cols-2'}`}>
+              {options.map((option, idx) => (
                 quizMode === 'term-to-image' ? (
-                  <div key={option.id} onClick={() => handleAnswer(option.id)}
-                    className={`relative rounded-lg overflow-hidden border-4 cursor-pointer transition-all
-                      ${showFeedback && option.id === currentQuestion?.id ? 'border-green-500' : ''}
-                      ${showFeedback && option.id === selectedAnswerId && !isCorrect ? 'border-red-500' : 'border-transparent'}
-                      ${!showFeedback ? 'hover:border-blue-400' : ''}
-                    `}>
-                    <img src={option.imageUrl} alt={option.term} className="w-full h-full object-cover"/>
+                  <div
+                    key={option.item?.id || idx}
+                    onClick={() => handleAnswer(option.item!.id)}
+                    className={`relative aspect-square rounded-lg overflow-hidden border-4 cursor-pointer transition-all
+                      ${showFeedback && option.item?.id === currentQuestion?.item.id ? 'border-green-500 scale-105 z-10' : ''}
+                      ${showFeedback && option.item?.id === selectedId && !isCurrentCorrect ? 'border-red-500' : 'border-transparent'}
+                      ${!showFeedback ? 'hover:border-blue-400 hover:shadow-lg' : ''}
+                    `}
+                  >
+                    <img src={option.item?.url} alt="选项图片" className="w-full h-full object-cover"/>
                     {showFeedback && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            {option.id === currentQuestion?.id && <CheckCircle className="h-16 w-16 text-white bg-green-500 rounded-full p-2"/>}
-                            {option.id === selectedAnswerId && !isCorrect && <XCircle className="h-16 w-16 text-white bg-red-500 rounded-full p-2"/>}
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            {option.item?.id === currentQuestion?.item.id && <CheckCircle className="h-12 w-12 text-white bg-green-500 rounded-full p-1"/>}
+                            {option.item?.id === selectedId && !isCurrentCorrect && <XCircle className="h-12 w-12 text-white bg-red-500 rounded-full p-1"/>}
                         </div>
                     )}
                   </div>
-                ) : ( // image-to-term
-                  <Button key={option.id} onClick={() => handleAnswer(option.id)}
-                    variant={showFeedback ? (option.id === currentQuestion?.id ? 'default' : (option.id === selectedAnswerId ? 'destructive' : 'outline')) : 'outline'}
-                    className={`h-auto text-lg p-4 justify-center transition-all duration-300
-                      ${showFeedback && option.id === currentQuestion?.id ? 'bg-green-600 hover:bg-green-700' : ''}
+                ) : (
+                  <Button
+                    key={option.noun || idx}
+                    onClick={() => handleAnswer(option.noun!)}
+                    variant={showFeedback ? (option.noun === currentQuestion?.noun ? 'default' : (option.noun === selectedId ? 'destructive' : 'outline')) : 'outline'}
+                    className={`h-auto text-lg p-6 justify-center transition-all duration-300 break-words whitespace-normal
+                      ${showFeedback && option.noun === currentQuestion?.noun ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg scale-105' : ''}
                     `}
-                    disabled={showFeedback}>
-                    {option.term}
+                    disabled={showFeedback}
+                  >
+                    {option.noun}
                   </Button>
                 )
               ))}
             </div>
+
             {showFeedback && (
-                <div className="mt-6 text-center">
-                    <Button onClick={handleNextQuestion} size="lg" className="text-xl">
-                        {questionCount >= TOTAL_QUESTIONS ? '查看得分' : '下一题'}
-                    </Button>
+              <div className="mt-8 flex flex-col items-center space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                <div className={`text-lg font-bold ${isCurrentCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                   {isCurrentCorrect ? '回答正确！' : `回答错误，正确答案是：${currentQuestion?.noun}`}
                 </div>
+                <div className="text-sm text-gray-500 italic mb-2">
+                  图源：{currentQuestion?.item.path.join(' > ')}
+                </div>
+                <Button onClick={handleNextQuestion} size="lg" className="px-12 py-6 text-xl bg-indigo-600 hover:bg-indigo-700">
+                    {questionCount >= TOTAL_QUESTIONS ? '查看最终得分' : '下一题'}
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

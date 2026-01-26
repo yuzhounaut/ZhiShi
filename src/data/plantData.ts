@@ -38,55 +38,58 @@ export const plantTraits: PlantTrait[] = [
   { id: 'shrub', category: '生长习性', name: '灌木', description: '木质茎，但相对较低，多分枝' },
   { id: 'tree', category: '生长习性', name: '乔木', description: '高大的木质植物，有明显主干' },
   { id: 'vine', category: '生长习性', name: '藤本', description: '茎部细长，需要依附其他物体生长' },
-  
+  { id: 'perennial', category: '生长习性', name: '多年生', description: '生命周期超过两年' },
+  { id: 'annual', category: '生长习性', name: '一年生', description: '在一个生长季内完成生命周期' },
+  { id: 'parasitic', category: '生长习性', name: '寄生', description: '依靠吸取其他生物的养分生存' },
+  { id: 'evergreen', category: '生长习性', name: '常绿', description: '终年有绿叶的植物' },
+
   // 叶特征
   { id: 'alternate', category: '叶特征', name: '叶互生', description: '叶子在茎上交替排列' },
   { id: 'opposite', category: '叶特征', name: '叶对生', description: '叶子在茎上相对排列' },
   { id: 'whorled', category: '叶特征', name: '叶轮生', description: '三片或更多叶子在同一节点排列' },
   { id: 'simple', category: '叶特征', name: '单叶', description: '叶片完整，不分裂' },
   { id: 'compound', category: '叶特征', name: '复叶', description: '叶片分裂成多个小叶' },
-  
+  { id: 'stipule', category: '叶特征', name: '托叶', description: '叶柄基部的小型附属物' },
+  { id: 'entire_margin', category: '叶特征', name: '全缘', description: '叶缘平滑，无锯齿或分裂' },
+  { id: 'serrate_margin', category: '叶特征', name: '锯齿', description: '叶缘有尖锐的锯齿' },
+  { id: 'leathery', category: '叶特征', name: '革质', description: '叶片质地坚韧如皮革' },
+  { id: 'basal_leaves', category: '叶特征', name: '叶基生', description: '叶片丛生于根颈部' },
+
   // 花特征
   { id: 'radial', category: '花特征', name: '辐射对称', description: '花朵呈辐射状对称' },
   { id: 'bilateral', category: '花特征', name: '两侧对称', description: '花朵左右对称' },
+  { id: 'bisexual', category: '花特征', name: '两性花', description: '同一朵花中既有雄蕊又有雌蕊' },
+  { id: 'unisexual', category: '花特征', name: '单性花', description: '只有雄蕊或只有雌蕊的花' },
+  { id: 'capitulum', category: '花特征', name: '头状花序', description: '花序轴缩短成头状或盘状' },
+  { id: 'umbel', category: '花特征', name: '伞形花序', description: '花柄等长，自花轴顶端放射状发出' },
+  { id: 'raceme', category: '花特征', name: '总状花序', description: '花轴长，花柄等长且交替排列' },
+  { id: 'cyme', category: '花特征', name: '聚伞花序', description: '顶花先开，然后侧枝分生' },
   { id: 'labiate', category: '花特征', name: '唇形花冠', description: '花冠呈唇形，上下唇明显' },
   { id: 'tubular', category: '花特征', name: '管状花冠', description: '花冠呈管状' },
   { id: 'cruciform', category: '花特征', name: '十字形花冠', description: '四个花瓣呈十字形排列' },
-  
+  { id: 'funnelform', category: '花特征', name: '漏斗状花冠', description: '花冠呈漏斗状' },
+  { id: 'campanulate', category: '花特征', name: '钟状花冠', description: '花冠像一口钟' },
+
   // 果实特征
   { id: 'berry', category: '果实特征', name: '浆果', description: '果实多汁，种子包埋在果肉中' },
   { id: 'capsule', category: '果实特征', name: '蒴果', description: '干燥果实，成熟时开裂释放种子' },
   { id: 'achene', category: '果实特征', name: '瘦果', description: '小型干燥果实，通常单种子' },
   { id: 'legume', category: '果实特征', name: '荚果', description: '豆类特有果实，沿腹缝和背缝开裂' },
   { id: 'drupe', category: '果实特征', name: '核果', description: '外果皮薄，中果皮肉质，内果皮坚硬' },
-  { id: 'pome', category: '果实特征', name: '梨果', description: '花托发育而成的肉质果实，如苹果' },
-  { id: 'silique', category: '果实特征', name: '角果', description: '十字花科特有的果实类型' },
-  { id: 'caryopsis', category: '果实特征', name: '颖果', description: '禾本科特有的果实，果皮与种皮合生' },
+  { id: 'pome', category: '果实特征', name: '梨果', description: '花托发育而成的肉质果实' },
+  { id: 'follicle', category: '果实特征', name: '蓇葖果', description: '由单心皮发育，成熟时仅沿一缝线开裂' },
+  { id: 'samara', category: '果实特征', name: '翅果', description: '果皮延伸成翅状，利于随风传播' },
 
   // 根特征
   { id: 'taproot', category: '根特征', name: '主根系', description: '有明显的主根和侧根' },
   { id: 'fibrous', category: '根特征', name: '须根系', description: '没有明显主根，由许多不定根组成' },
-  { id: 'nodule', category: '根特征', name: '根瘤', description: '豆科植物根部与根瘤菌共生形成的结构' },
-  { id: 'bulb', category: '根特征', name: '鳞茎', description: '地下变态茎，储存养分，如洋葱' },
-  { id: 'rhizome', category: '根特征', name: '根状茎', description: '地下的根状变态茎，如姜' },
+  { id: 'rhizome_root', category: '根特征', name: '根状茎', description: '地下的根状变态茎' },
 
   // 茎特征
+  { id: 'square_stem', category: '茎特征', name: '方茎', description: '茎的横切面为四方形' },
   { id: 'woody', category: '茎特征', name: '木质茎', description: '茎部坚硬，木质化' },
   { id: 'herbaceous', category: '茎特征', name: '草质茎', description: '茎部柔软，非木质' },
-  { id: 'square_stem', category: '茎特征', name: '方茎', description: '茎的横切面为四方形' },
-  { id: 'angular_stem', category: '茎特征', name: '四棱茎', description: '茎有四条棱' },
-  { id: 'erect_stem', category: '茎特征', name: '直立茎', description: '茎干垂直向上生长' },
-  { id: 'hollow_stem', category: '茎特征', name: '茎中空', description: '茎的内部是空心的' },
-  { id: 'jointed_stem', category: '茎特征', name: '有节', description: '茎上有明显的节' },
-
-  // 新增叶特征
-  { id: 'parallel_veins', category: '叶特征', name: '叶平行脉', description: '叶脉大致相互平行，多见于单子叶植物' },
-  { id: 'leaf_sheath', category: '叶特征', name: '叶鞘', description: '叶基部包围茎的部分' },
-  { id: 'ligule', category: '叶特征', name: '叶舌', description: '位于叶片和叶鞘连接处的膜质结构' },
-
-  // 新增花特征
-  { id: 'ligulate_corolla', category: '花特征', name: '舌状花冠', description: '花冠的一部分伸出呈舌状' },
-  { id: 'spikelet', category: '花特征', name: '小穗', description: '禾本科植物的基本花序单位' }
+  { id: 'milky_sap', category: '茎特征', name: '乳汁', description: '切开茎部有白色乳液流出' }
 ];
 
 // Helper to parse identificationModule into structured traits
@@ -100,7 +103,7 @@ const parseTraits = (idModule: string) => {
     fruit: []
   };
 
-  const textSegments = idModule.split(/[。；,，]/).map(s => s.trim()).filter(Boolean);
+  const textSegments = idModule.split(/[。；,，\s]/).map(s => s.trim()).filter(Boolean);
 
   textSegments.forEach(segment => {
     plantTraits.forEach(trait => {
@@ -137,8 +140,8 @@ export const plantFamilies: PlantFamily[] = (plantFamiliesData as any[]).map(ite
   };
 });
 
-// --- New Data for Module 4: Morphology Image Quiz ---
-
+// MorphologyQuizItem and logic will be handled in the ImageQuiz component
+// based on atlasItems, but we keep the interface here for compatibility if needed.
 export interface MorphologyQuizItem {
   id: string;
   term: string;
@@ -146,56 +149,9 @@ export interface MorphologyQuizItem {
   description: string;
 }
 
-export const morphologyQuizData: MorphologyQuizItem[] = [
-  {
-    id: 'square-stem',
-    term: '方茎',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=方茎',
-    description: '唇形科植物的典型特征，茎的横切面呈四方形。'
-  },
-  {
-    id: 'ligulate-corolla',
-    term: '舌状花冠',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=舌状花冠',
-    description: '菊科植物中常见，部分花瓣延长呈舌头状。'
-  },
-  {
-    id: 'cruciform-corolla',
-    term: '十字形花冠',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=十字形花冠',
-    description: '十字花科的标志，四片花瓣呈十字对称排列。'
-  },
-  {
-    id: 'fibrous-roots',
-    term: '须根系',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=须根系',
-    description: '没有明显主根，由许多粗细相似的不定根组成，常见于单子叶植物。'
-  },
-  {
-    id: 'taproot-system',
-    term: '主根系',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=主根系',
-    description: '有明显、发达的主根，主根上生出侧根，常见于双子叶植物。'
-  },
-  {
-    id: 'compound-leaf',
-    term: '复叶',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=复叶',
-    description: '叶片完全分裂成多个独立的小叶。'
-  },
-  {
-    id: 'legume-fruit',
-    term: '荚果',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=荚果',
-    description: '豆科植物特有的果实，由单心皮发育而成，成熟后沿背缝和腹缝开裂。'
-  },
-  {
-    id: 'rhizome',
-    term: '根状茎',
-    imageUrl: 'https://placehold.co/400x300/e2e8f0/64748b?text=根状茎',
-    description: '一种横向生长的地下变态茎，有明显的节和节间，如姜。'
-  }
-];
+// We'll keep these as placeholders or remove if they cause confusion,
+// but since the plan is to revamp ImageQuiz to use atlasItems, these are less critical.
+export const morphologyQuizData: MorphologyQuizItem[] = [];
 
 export interface QuizQuestion {
   familyId: string;
