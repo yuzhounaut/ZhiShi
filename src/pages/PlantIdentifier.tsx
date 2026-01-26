@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { plantFamilies, plantTraits } from '@/data/plantData';
-import { semanticSearch } from '@/lib/ai';
+import { semanticSearch, semanticSearchBatch } from '@/lib/ai';
 import { Bot, Search, RotateCcw, ExternalLink, Filter, Eraser, Sparkles, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -49,11 +49,16 @@ const PlantIdentifier = () => {
     };
   }, []);
 
-  // Create a flat list of all trait segments from the identification module
+  // Create a flat list of all trait segments from both identification and memory modules
   const traitCorpus = useMemo<TraitCorpusItem[]>(() => {
     return plantFamilies.flatMap(family => {
-      const segments = family.identificationModule.split(/[。；,，]/).map(s => s.trim()).filter(Boolean);
-      return segments.map(trait => ({
+      const idSegments = family.identificationModule.split(/[。；,，]/).map(s => s.trim()).filter(Boolean);
+      const memSegments = family.memoryModule.split(/[。；,，]/).map(s => s.trim()).filter(Boolean);
+
+      // Combine both modules to provide a richer corpus for semantic matching
+      const allSegments = [...new Set([...idSegments, ...memSegments])];
+
+      return allSegments.map(trait => ({
         familyId: family.id,
         trait: trait,
       }));
@@ -83,40 +88,73 @@ const PlantIdentifier = () => {
       setLoadingMessage('正在唤醒AI模型，首次启动可能需要一点时间...');
       setProgress(10);
 
-      const corpusTexts = traitCorpus.map(item => item.trait);
-      const searchResults = await semanticSearch(userQuery, corpusTexts);
+      // Split query into segments for multi-trait matching
+      const querySegments = userQuery.split(/[。；,，\n]/).map(s => s.trim()).filter(Boolean);
 
-      setLoadingMessage('正在分析特征...');
+      if (querySegments.length === 0) {
+        setIsLoading(false);
+        return;
+      }
+
+      const corpusTexts = traitCorpus.map(item => item.trait);
+      const batchResults = await semanticSearchBatch(querySegments, corpusTexts);
+
+      setLoadingMessage('正在综合分析多个特征...');
       setProgress(80);
 
-      // A map to store the best result for each family
-      const bestResultsMap = new Map<string, AIIdentificationResultItem>();
+      // For each family, we want to find how well it matches ALL query segments
+      const familyScores = new Map<string, { totalScore: number, matches: string[] }>();
 
-      for (const result of searchResults) {
-        // 优化短查询：如果是单字，必须与特征描述完全一致才被接受
-        if (userQuery.trim().length <= 1 && result.text !== userQuery.trim()) {
-          continue;
-        }
+      batchResults.forEach((queryResult, qIdx) => {
+        const segment = querySegments[qIdx];
+        const bestScoresPerFamily = new Map<string, { score: number, text: string }>();
 
-        if (result.score < 0.3) continue;
+        queryResult.forEach(result => {
+          // Exact match requirement for single-character segments
+          if (segment.length <= 1 && result.text !== segment) {
+            return;
+          }
 
-        const corpusItem = traitCorpus[result.corpus_id];
-        const familyId = corpusItem.familyId;
+          const corpusItem = traitCorpus[result.corpus_id];
+          const familyId = corpusItem.familyId;
 
-        if (!bestResultsMap.has(familyId) || result.score > bestResultsMap.get(familyId)!.aiScore) {
+          if (!bestScoresPerFamily.has(familyId) || result.score > bestScoresPerFamily.get(familyId)!.score) {
+            bestScoresPerFamily.set(familyId, { score: result.score, text: result.text });
+          }
+        });
+
+        bestScoresPerFamily.forEach((data, familyId) => {
+          if (!familyScores.has(familyId)) {
+            familyScores.set(familyId, { totalScore: 0, matches: [] });
+          }
+          const current = familyScores.get(familyId)!;
+          current.totalScore += data.score;
+          // We pick the best matching trait for each query segment to show in UI
+          if (data.score > 0.6) {
+             current.matches.push(data.text);
+          }
+        });
+      });
+
+      const finalResults: AIIdentificationResultItem[] = [];
+      familyScores.forEach((data, familyId) => {
+        const avgScore = data.totalScore / querySegments.length;
+
+        // Only show results with a reasonable average matching score
+        if (avgScore > 0.3) {
           const familyInfo = plantFamilies.find(pf => pf.id === familyId);
-          bestResultsMap.set(familyId, {
+          finalResults.push({
             familyId: familyId,
             name: familyInfo?.chineseName,
             latinName: familyInfo?.latinName,
             description: familyInfo?.memoryModule,
-            aiScore: result.score,
-            matchingTrait: result.text,
+            aiScore: avgScore,
+            // Show the top matching trait from the first segment or most relevant
+            matchingTrait: data.matches[0] || "综合匹配",
           });
         }
-      }
+      });
 
-      const finalResults = Array.from(bestResultsMap.values());
       finalResults.sort((a, b) => b.aiScore - a.aiScore);
 
       setProgress(100);
