@@ -58,24 +58,24 @@ self.onmessage = async (event) => {
               quantized: true,
               progress_callback: (data: any) => {
                 if (data.status === 'progress') {
-                  // Map 0-100 progress of model loading to 30-90 range of total progress
-                  const modelProgress = 30 + (data.progress * 0.6);
+                  // Map 0-100 progress of model loading to 20-85 range
+                  const modelProgress = 20 + (data.progress * 0.65);
                   self.postMessage({
                     type: 'progress',
                     progress: modelProgress,
-                    message: `正在加载模型文件: ${data.file} (${Math.round(data.progress)}%)`
+                    message: `阶段 2/3: 正在下载 AI 模型文件... (${Math.round(data.progress)}%)`
                   });
                 } else if (data.status === 'initiate') {
                   self.postMessage({
                     type: 'progress',
-                    progress: 30,
-                    message: `正在开始下载模型: ${data.file}...`
+                    progress: 20,
+                    message: `阶段 2/3: 开始准备 AI 模型文件...`
                   });
                 } else if (data.status === 'done') {
                     self.postMessage({
                       type: 'progress',
-                      progress: 90,
-                      message: `模型文件 ${data.file} 加载完成`
+                      progress: 85,
+                      message: `阶段 2/3: 模型文件加载完成`
                     });
                 }
               }
@@ -87,7 +87,7 @@ self.onmessage = async (event) => {
             if (retries > 0) {
               self.postMessage({
                 type: 'progress',
-                progress: 30,
+                progress: 20,
                 message: `模型加载失败，正在重试... (剩余 ${retries} 次)`
               });
               await new Promise(resolve => setTimeout(resolve, 2000));
@@ -99,6 +99,13 @@ self.onmessage = async (event) => {
           throw lastError;
         }
       }
+
+      self.postMessage({
+        type: 'progress',
+        progress: 95,
+        message: `阶段 3/3: 正在初始化 AI 引擎...`
+      });
+
       self.postMessage({ type: 'init_complete', id });
     }
     else if (type === 'search') {
