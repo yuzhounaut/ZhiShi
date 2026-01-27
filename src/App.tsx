@@ -13,14 +13,14 @@ import NotFound from './pages/NotFound';
 import QuizSelectionPage from './pages/QuizSelectionPage'; // Import the new page
 
 import { useEffect } from 'react';
-import { preloadAI } from '@/lib/ai';
+import { preloadAIData } from '@/lib/ai';
 
 const queryClient = new QueryClient();
 
 const App = () => {
   useEffect(() => {
-    // Silently preload AI model and embeddings in the background
-    preloadAI();
+    // Silently preload retrieval library (traits and embeddings) in the background
+    preloadAIData();
   }, []);
 
   return (

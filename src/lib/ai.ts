@@ -11,7 +11,16 @@ class AIWorkerManager {
   private worker: Worker | null = null;
   private idCounter = 0;
   private callbacks = new Map<number, { resolve: Function, reject: Function }>();
-  private preloadingPromise: Promise<void> | null = null;
+
+  private dataLoadingPromise: Promise<void> | null = null;
+  private modelInitializationPromise: Promise<void> | null = null;
+
+  private isDataLoaded = false;
+  private isModelInitialized = false;
+
+  private traitsData: any = null;
+  private embeddingsBuffer: ArrayBuffer | null = null;
+
   private progressCallback: ((progress: number, message: string) => void) | null = null;
 
   private async fetchWithRetry(url: string, options: RequestInit = {}, retries = 3, backoff = 1000): Promise<Response> {
@@ -78,74 +87,112 @@ class AIWorkerManager {
     });
   }
 
-  async preload(onProgress?: (progress: number, message: string) => void): Promise<void> {
-    if (onProgress) {
-      this.progressCallback = onProgress;
-    }
+  async preloadData(): Promise<void> {
+    if (this.isDataLoaded) return;
+    if (this.dataLoadingPromise) return this.dataLoadingPromise;
 
-    if (this.preloadingPromise) {
-      // If already preloading or preloaded, ensure the callback gets a completion message if it's already done
-      this.preloadingPromise.then(() => {
-        if (this.progressCallback === onProgress) {
-          onProgress?.(100, 'AI 系统准备就绪');
-        }
-      });
-      return this.preloadingPromise;
-    }
-
-    this.preloadingPromise = (async () => {
-      console.log('Starting AI preloading via Worker...');
-      if (this.progressCallback) this.progressCallback(5, '正在准备鉴定资源...');
-
+    this.dataLoadingPromise = (async () => {
+      console.log('Starting AI data preloading...');
       try {
-        // 1. Fetch precomputed data with retries
         const [traitsRes, embeddingsRes] = await Promise.all([
           this.fetchWithRetry('/data/precomputedTraits.json'),
           this.fetchWithRetry('/data/precomputedEmbeddings.bin')
         ]);
-
-        if (this.progressCallback) this.progressCallback(15, '正在加载预计算特征库...');
-
-        const traitsData = await traitsRes.json();
-        const embeddingsBuffer = await embeddingsRes.arrayBuffer();
-
-        if (this.progressCallback) this.progressCallback(30, '正在初始化 AI 引擎...');
-
-        // 2. Initialize worker with data and load model
-        // The worker 'init' will also handle model loading which we'll add progress for
-        await this.send('init', {
-          traits: traitsData.traits,
-          embeddingsBuffer: embeddingsBuffer,
-          dims: traitsData.dims
-        }, [embeddingsBuffer]);
-
-        if (this.progressCallback) this.progressCallback(100, 'AI 系统准备就绪');
-        console.log('AI System fully preloaded in Worker');
+        this.traitsData = await traitsRes.json();
+        this.embeddingsBuffer = await embeddingsRes.arrayBuffer();
+        this.isDataLoaded = true;
+        console.log('AI Data preloaded');
       } catch (error) {
-        console.error('AI Preloading failed:', error);
-        this.preloadingPromise = null; // Allow retrying
+        console.error('AI Data preloading failed:', error);
+        this.dataLoadingPromise = null;
+        throw error;
+      }
+    })();
+    return this.dataLoadingPromise;
+  }
+
+  async initializeModel(onProgress?: (progress: number, message: string) => void): Promise<void> {
+    if (onProgress) {
+      this.progressCallback = onProgress;
+    }
+
+    if (this.isModelInitialized) {
+      if (this.progressCallback) this.progressCallback(100, 'AI 系统准备就绪');
+      return;
+    }
+
+    if (this.modelInitializationPromise) {
+      // If already initializing, ensure the callback gets a completion message if it's already done
+      this.modelInitializationPromise.then(() => {
+        if (this.progressCallback === onProgress) {
+          onProgress?.(100, 'AI 系统准备就绪');
+        }
+      });
+      return this.modelInitializationPromise;
+    }
+
+    this.modelInitializationPromise = (async () => {
+      console.log('Initializing AI model...');
+      try {
+        // Step 1: Data Loading (if not already done)
+        if (!this.isDataLoaded) {
+          if (this.progressCallback) this.progressCallback(5, '阶段 1/3: 正在加载基础数据...');
+          await this.preloadData();
+        }
+
+        if (this.progressCallback) this.progressCallback(15, '阶段 1/3: 基础数据加载完成');
+
+        // Step 2 & 3: Model loading and worker initialization
+        // We send data to worker; worker will report progress for model loading (Stage 2)
+        const bufferToTransfer = this.embeddingsBuffer!;
+        this.embeddingsBuffer = null; // Mark as transferred to avoid double transfer attempts
+
+        await this.send('init', {
+          traits: this.traitsData.traits,
+          embeddingsBuffer: bufferToTransfer,
+          dims: this.traitsData.dims
+        }, [bufferToTransfer]);
+
+        this.isModelInitialized = true;
+        if (this.progressCallback) this.progressCallback(100, 'AI 系统准备就绪');
+        console.log('AI System fully initialized');
+      } catch (error) {
+        console.error('AI Initialization failed:', error);
+        this.modelInitializationPromise = null; // Allow retrying
+
+        // If it failed and buffer is gone, we must reload data
+        if (!this.embeddingsBuffer) {
+          this.isDataLoaded = false;
+          this.dataLoadingPromise = null;
+        }
         throw error;
       }
     })();
 
-    return this.preloadingPromise;
+    return this.modelInitializationPromise;
   }
 
   async semanticSearch(query: string, corpus: string[]): Promise<SemanticSearchResult[]> {
-    await this.preload();
+    await this.initializeModel();
     return this.send('search', { query, corpus });
   }
 
   async semanticSearchBatch(queries: string[], corpus: string[]): Promise<SemanticSearchResult[][]> {
-    await this.preload();
+    await this.initializeModel();
     return this.send('searchBatch', { queries, corpus });
   }
 }
 
 const aiManager = new AIWorkerManager();
 
+export const preloadAIData = () => aiManager.preloadData();
+
+export const initializeAIModel = (onProgress?: (progress: number, message: string) => void) =>
+  aiManager.initializeModel(onProgress);
+
+// Backward compatibility
 export const preloadAI = (onProgress?: (progress: number, message: string) => void) =>
-  aiManager.preload(onProgress);
+  aiManager.initializeModel(onProgress);
 
 export const semanticSearch = (query: string, corpus: string[]) =>
   aiManager.semanticSearch(query, corpus);

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { plantFamilies, plantTraits } from '@/data/plantData';
-import { semanticSearch, semanticSearchBatch, preloadAI } from '@/lib/ai';
+import { semanticSearch, semanticSearchBatch, initializeAIModel } from '@/lib/ai';
 import { Bot, Search, RotateCcw, ExternalLink, Filter, Eraser, Sparkles, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -78,10 +78,10 @@ const PlantIdentifier = () => {
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
 
     try {
-      setLoadingMessage('正在初始化 AI 引擎...');
+      setLoadingMessage('正在准备 AI 引擎...');
 
-      // Call preload with progress callback
-      await preloadAI((prog, msg) => {
+      // Call initializeAIModel with progress callback (Staged loading)
+      await initializeAIModel((prog, msg) => {
         setProgress(prog);
         setLoadingMessage(msg);
       });
@@ -400,10 +400,19 @@ const PlantIdentifier = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 mt-4">
-                        <div className={`h-1 rounded-full transition-colors duration-500 ${progress > 20 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                        <div className={`h-1 rounded-full transition-colors duration-500 ${progress > 50 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                        <div className={`h-1 rounded-full transition-colors duration-500 ${progress > 80 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div className="space-y-2">
+                          <div className={`h-1.5 rounded-full transition-colors duration-500 ${progress >= 15 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                          <p className="text-[10px] text-center font-medium text-gray-500">1. 基础数据</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className={`h-1.5 rounded-full transition-colors duration-500 ${progress >= 85 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                          <p className="text-[10px] text-center font-medium text-gray-500">2. AI 模型</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className={`h-1.5 rounded-full transition-colors duration-500 ${progress >= 100 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                          <p className="text-[10px] text-center font-medium text-gray-500">3. 引擎就绪</p>
+                        </div>
                       </div>
                     </div>
 
