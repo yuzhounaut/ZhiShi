@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { plantFamilies, plantTraits } from '@/data/plantData';
-import { semanticSearch, semanticSearchBatch } from '@/lib/ai';
+import { semanticSearch, semanticSearchBatch, preloadAI } from '@/lib/ai';
 import { Bot, Search, RotateCcw, ExternalLink, Filter, Eraser, Sparkles, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -74,19 +74,17 @@ const PlantIdentifier = () => {
     setAiResults([]);
     setErrorMessage(null);
 
-    // Simulate progress while AI is working
+    // Clear simulated progress - we will use real progress from preloadAI
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
 
-    progressIntervalRef.current = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) return prev + 0.5 > 98 ? 98 : prev + 0.1;
-        return prev + 5;
-      });
-    }, 300);
-
     try {
-      setLoadingMessage('正在准备智能鉴定资源...');
-      setProgress(20);
+      setLoadingMessage('正在初始化 AI 引擎...');
+
+      // Call preload with progress callback
+      await preloadAI((prog, msg) => {
+        setProgress(prog);
+        setLoadingMessage(msg);
+      });
 
       // Split query into segments for multi-trait matching
       const querySegments = userQuery.split(/[。；,，\n]/).map(s => s.trim()).filter(Boolean);
@@ -98,11 +96,25 @@ const PlantIdentifier = () => {
 
       const corpusTexts = traitCorpus.map(item => item.trait);
 
+      setLoadingMessage('正在进行语义特征比对...');
+      // Start a slow simulation for the actual search part since it's hard to get progress from search
+      progressIntervalRef.current = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 99) return 99;
+          return prev + 0.5;
+        });
+      }, 200);
+
       // The AI will use precomputed embeddings if available, making this much faster
       const batchResults = await semanticSearchBatch(querySegments, corpusTexts);
 
-      setLoadingMessage('正在深度分析植物形态特征...');
-      setProgress(80);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+
+      setLoadingMessage('正在汇总分析结果...');
+      setProgress(95);
 
       // For each family, we want to find how well it matches ALL query segments
       const familyScores = new Map<string, { totalScore: number, matches: string[] }>();
