@@ -12,6 +12,20 @@ class AIWorkerManager {
   private idCounter = 0;
   private callbacks = new Map<number, { resolve: Function, reject: Function }>();
   private preloadingPromise: Promise<void> | null = null;
+  private progressCallback: ((progress: number, message: string) => void) | null = null;
+
+  private async fetchWithRetry(url: string, options: RequestInit = {}, retries = 3, backoff = 1000): Promise<Response> {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response;
+    } catch (error) {
+      if (retries <= 0) throw error;
+      console.warn(`Fetch failed for ${url}, retrying in ${backoff}ms... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, backoff));
+      return this.fetchWithRetry(url, options, retries - 1, backoff * 2);
+    }
+  }
 
   private getWorker() {
     if (!this.worker) {
@@ -21,7 +35,14 @@ class AIWorkerManager {
       });
 
       this.worker.onmessage = (event) => {
-        const { type, id, payload, error } = event.data;
+        const { type, id, payload, error, message, progress } = event.data;
+
+        if (type === 'progress') {
+          if (this.progressCallback) {
+            this.progressCallback(progress, message);
+          }
+          return;
+        }
 
         if (type === 'init_complete') {
             const callback = this.callbacks.get(id);
@@ -57,33 +78,48 @@ class AIWorkerManager {
     });
   }
 
-  async preload(): Promise<void> {
-    if (this.preloadingPromise) return this.preloadingPromise;
+  async preload(onProgress?: (progress: number, message: string) => void): Promise<void> {
+    if (onProgress) {
+      this.progressCallback = onProgress;
+    }
+
+    if (this.preloadingPromise) {
+      // If already preloading or preloaded, ensure the callback gets a completion message if it's already done
+      this.preloadingPromise.then(() => {
+        if (this.progressCallback === onProgress) {
+          onProgress?.(100, 'AI 系统准备就绪');
+        }
+      });
+      return this.preloadingPromise;
+    }
 
     this.preloadingPromise = (async () => {
       console.log('Starting AI preloading via Worker...');
+      if (this.progressCallback) this.progressCallback(5, '正在准备鉴定资源...');
 
       try {
-        // 1. Fetch precomputed data
+        // 1. Fetch precomputed data with retries
         const [traitsRes, embeddingsRes] = await Promise.all([
-          fetch('/data/precomputedTraits.json'),
-          fetch('/data/precomputedEmbeddings.bin')
+          this.fetchWithRetry('/data/precomputedTraits.json'),
+          this.fetchWithRetry('/data/precomputedEmbeddings.bin')
         ]);
 
-        if (!traitsRes.ok || !embeddingsRes.ok) {
-          throw new Error('Failed to load precomputed AI data');
-        }
+        if (this.progressCallback) this.progressCallback(15, '正在加载预计算特征库...');
 
         const traitsData = await traitsRes.json();
         const embeddingsBuffer = await embeddingsRes.arrayBuffer();
 
+        if (this.progressCallback) this.progressCallback(30, '正在初始化 AI 引擎...');
+
         // 2. Initialize worker with data and load model
+        // The worker 'init' will also handle model loading which we'll add progress for
         await this.send('init', {
           traits: traitsData.traits,
           embeddingsBuffer: embeddingsBuffer,
           dims: traitsData.dims
         }, [embeddingsBuffer]);
 
+        if (this.progressCallback) this.progressCallback(100, 'AI 系统准备就绪');
         console.log('AI System fully preloaded in Worker');
       } catch (error) {
         console.error('AI Preloading failed:', error);
@@ -108,7 +144,8 @@ class AIWorkerManager {
 
 const aiManager = new AIWorkerManager();
 
-export const preloadAI = () => aiManager.preload();
+export const preloadAI = (onProgress?: (progress: number, message: string) => void) =>
+  aiManager.preload(onProgress);
 
 export const semanticSearch = (query: string, corpus: string[]) =>
   aiManager.semanticSearch(query, corpus);

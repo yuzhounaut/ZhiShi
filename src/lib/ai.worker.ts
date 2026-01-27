@@ -49,9 +49,55 @@ self.onmessage = async (event) => {
       if (dims) precomputedDims = dims;
 
       if (!extractor) {
-        extractor = await pipeline('feature-extraction', 'bge-small-zh-v1.5', {
-          quantized: true,
-        });
+        let retries = 3;
+        let lastError = null;
+
+        while (retries > 0) {
+          try {
+            extractor = await pipeline('feature-extraction', 'bge-small-zh-v1.5', {
+              quantized: true,
+              progress_callback: (data: any) => {
+                if (data.status === 'progress') {
+                  // Map 0-100 progress of model loading to 30-90 range of total progress
+                  const modelProgress = 30 + (data.progress * 0.6);
+                  self.postMessage({
+                    type: 'progress',
+                    progress: modelProgress,
+                    message: `正在加载模型文件: ${data.file} (${Math.round(data.progress)}%)`
+                  });
+                } else if (data.status === 'initiate') {
+                  self.postMessage({
+                    type: 'progress',
+                    progress: 30,
+                    message: `正在开始下载模型: ${data.file}...`
+                  });
+                } else if (data.status === 'done') {
+                    self.postMessage({
+                      type: 'progress',
+                      progress: 90,
+                      message: `模型文件 ${data.file} 加载完成`
+                    });
+                }
+              }
+            });
+            break; // Success!
+          } catch (e) {
+            lastError = e;
+            retries--;
+            if (retries > 0) {
+              self.postMessage({
+                type: 'progress',
+                progress: 30,
+                message: `模型加载失败，正在重试... (剩余 ${retries} 次)`
+              });
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
+        }
+
+        if (!extractor && lastError) {
+          throw lastError;
+        }
       }
       self.postMessage({ type: 'init_complete', id });
     }
