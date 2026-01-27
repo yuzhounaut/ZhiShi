@@ -95,7 +95,24 @@ const SequentialQuiz = () => {
     const aiResults = await semanticSearch(userAnswer, correctAnswers);
     const topScore = aiResults.length > 0 ? aiResults[0].score : 0;
 
+    // 1. 检查关键词包含关系：答案包含预定义的特征词，或答案是长特征词的有效部分（>=2字）
+    const containsKeyword = correctAnswers.some(kw => userAnswer.includes(kw));
+    const matchesKeywordPart = userAnswer.length >= 2 && correctAnswers.some(kw => kw.includes(userAnswer));
+
+    // 2. 检查是否仅含英文或数字
+    const isOnlyEnglishOrDigits = /^[A-Za-z0-9\s.,!?-]+$/.test(userAnswer);
+
     let correct = topScore >= CORRECTNESS_THRESHOLD;
+
+    // 必须包含关键词或其有效部分
+    if (!(containsKeyword || matchesKeywordPart)) {
+      correct = false;
+    }
+
+    // 直接拒绝仅含英文字母或数字的答案
+    if (isOnlyEnglishOrDigits) {
+      correct = false;
+    }
 
     // 优化短答案匹配：如果是单字，必须是正确答案中的某个词的精确匹配
     // 避免“本”匹配到“草本”或“多年生”的情况
