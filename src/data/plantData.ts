@@ -129,15 +129,29 @@ const parseTraits = (idModule: string) => {
 };
 
 // Map CSV data to PlantFamily interface
+// Using getters to defer expensive parsing of characteristics and traits until they are actually accessed
 export const plantFamilies: PlantFamily[] = (plantFamiliesData as any[]).map(item => {
+  let _characteristics: string[] | null = null;
+  let _traits: PlantFamily['traits'] | null = null;
+
   return {
     ...item,
     description: item.memoryModule,
-    characteristics: item.memoryModule.split(/[。；]/).filter(Boolean),
-    traits: parseTraits(item.identificationModule),
     commonSpecies: [],
-    images: []
-  };
+    images: [],
+    get characteristics() {
+      if (!_characteristics) {
+        _characteristics = item.memoryModule.split(/[。；]/).filter(Boolean);
+      }
+      return _characteristics;
+    },
+    get traits() {
+      if (!_traits) {
+        _traits = parseTraits(item.identificationModule);
+      }
+      return _traits;
+    }
+  } as PlantFamily;
 });
 
 // MorphologyQuizItem and logic will be handled in the ImageQuiz component

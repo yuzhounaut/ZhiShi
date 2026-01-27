@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { plantFamilies, plantTraits } from '@/data/plantData';
-import { semanticSearch, semanticSearchBatch, initializeAIModel } from '@/lib/ai';
+import { semanticSearch, semanticSearchBatch, initializeAIModel, preloadAIData } from '@/lib/ai';
 import { Bot, Search, RotateCcw, ExternalLink, Filter, Eraser, Sparkles, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -40,8 +40,10 @@ const PlantIdentifier = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup interval on unmount
+  // Start preloading AI data when entering this module
   useEffect(() => {
+    preloadAIData();
+
     return () => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
