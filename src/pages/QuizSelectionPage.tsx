@@ -14,7 +14,7 @@ const QuizSelectionPage = () => {
         <header className="text-center mb-12">
           <BookOpenText className="h-16 w-16 mx-auto text-green-700 mb-4" />
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            知识挑战
+            互动问答
           </h1>
           <p className="text-lg text-gray-700">
             选择一个模式，开始您的学习之旅，测试您的植物学知识！

@@ -28,7 +28,7 @@ const Home = () => {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-center mb-3">
                 <Search className="h-12 w-12 mr-3" /> {/* Icon color might need adjustment if it was relying on text-white inheritance */}
-                <CardTitle className="text-3xl md:text-4xl font-bold">植物智能鉴定</CardTitle>
+                <CardTitle className="text-3xl md:text-4xl font-bold">智能鉴定</CardTitle>
               </div>
               <CardDescription className="text-slate-600 text-center text-md">
                 通过选择植物特征关键词，快速识别未知植物。
@@ -67,29 +67,29 @@ const Home = () => {
         <div className="container mx-auto max-w-5xl text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">探索更多功能</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <Link to="/encyclopedia/atlas" className="block">
-              <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
-                <CardHeader>
-                  <div className="flex items-center text-green-600">
-                    <BookOpen className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">名词图鉴</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 text-sm">通过层级分类浏览植物名词与形态图片</p>
-                </CardContent>
-              </Card>
-            </Link>
             <Link to="/encyclopedia/families" className="block">
               <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
                 <CardHeader>
                   <div className="flex items-center text-green-700">
                     <BookMarked className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">科图鉴</CardTitle>
+                    <CardTitle className="text-xl">科特征知识库</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 text-sm">浏览详细的植物科属特征与识别要点</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/encyclopedia/atlas" className="block">
+              <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
+                <CardHeader>
+                  <div className="flex items-center text-green-600">
+                    <BookOpen className="h-8 w-8 mr-3" />
+                    <CardTitle className="text-xl">形态名词图鉴</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-sm">通过层级分类浏览植物名词与形态图片</p>
                 </CardContent>
               </Card>
             </Link>
@@ -98,7 +98,7 @@ const Home = () => {
                 <CardHeader>
                   <div className="flex items-center text-blue-600">
                     <Award className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">知识挑战</CardTitle>
+                    <CardTitle className="text-xl">互动问答</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
