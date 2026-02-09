@@ -22,17 +22,10 @@ const Header = () => {
   }
 
   const navigationItems: NavigationItem[] = [
+    { name: '科特征知识库', path: '/encyclopedia/families', icon: '📖' },
+    { name: '形态名词图鉴', path: '/encyclopedia/atlas', icon: '🖼️' },
     { name: '互动问答', path: '/quiz', icon: '📚' },
-    { name: '植物鉴定', path: '/identify', icon: '🔍' },
-    {
-      name: '植物图鉴',
-      path: '/encyclopedia',
-      icon: '📱',
-      subItems: [
-        { name: '名词图鉴', path: '/encyclopedia/atlas' },
-        { name: '科图鉴', path: '/encyclopedia/families' }
-      ]
-    },
+    { name: '智能鉴定', path: '/identify', icon: '🔍' },
   ];
 
   const isActive = (item: NavigationItem) => {

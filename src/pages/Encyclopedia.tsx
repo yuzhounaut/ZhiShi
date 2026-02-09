@@ -34,7 +34,7 @@ const Encyclopedia = () => {
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <BookOpen className="h-8 w-8 text-green-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">植物图鉴</h1>
+            <h1 className="text-3xl font-bold text-gray-900">科特征知识库</h1>
           </div>
           <p className="text-gray-600 text-lg mb-6">
             浏览完整的植物科数据库，深入了解各种植物的特征和分类
@@ -130,7 +130,7 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
             <h2 className="text-xl font-bold mb-4">未找到该植物科</h2>
             <p className="text-gray-600 mb-4">请检查链接是否正确</p>
             <Link to="/encyclopedia/families">
-              <Button>返回图鉴列表</Button>
+              <Button>返回列表</Button>
             </Link>
           </CardContent>
         </Card>
@@ -145,7 +145,7 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
         <div className="mb-8">
           <Link to="/encyclopedia/families" className="inline-flex items-center text-green-600 hover:text-green-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            返回图鉴列表
+            返回列表
           </Link>
           <div className="flex items-center justify-between">
             <div>
@@ -247,7 +247,7 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
             </Link>
             <Link to="/identify">
               <Button variant="outline">
-                🔍 使用植物鉴定
+                🔍 使用智能鉴定
               </Button>
             </Link>
           </div>

@@ -60,7 +60,7 @@ const AtlasGrid = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-green-600 mr-3" />
-              <h1 className="text-3xl font-bold text-gray-900">名词图鉴</h1>
+              <h1 className="text-3xl font-bold text-gray-900">形态名词图鉴</h1>
             </div>
 
             {/* Search Bar */}
@@ -203,7 +203,7 @@ const AtlasItemDetail = ({ itemId }: { itemId: string }) => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-bold mb-4">未找到该术语</h2>
-          <Button onClick={() => navigate('/encyclopedia/atlas')}>返回图鉴</Button>
+          <Button onClick={() => navigate('/encyclopedia/atlas')}>返回列表</Button>
         </div>
       </div>
     );

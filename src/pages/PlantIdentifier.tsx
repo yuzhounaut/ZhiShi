@@ -252,7 +252,7 @@ const PlantIdentifier = () => {
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <Bot className="h-8 w-8 text-green-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">AI植物鉴定</h1>
+            <h1 className="text-3xl font-bold text-gray-900">智能鉴定</h1>
           </div>
           <p className="text-gray-600 text-lg">
             请用自然语言描述您观察到的植物特征，AI将为您分析最可能的科属。
@@ -283,7 +283,7 @@ const PlantIdentifier = () => {
                     disabled={!userQuery.trim() || isLoading}
                   >
                     <Bot className="h-4 w-4 mr-2" />
-                    AI鉴定
+                    开始鉴定
                   </Button>
                   <Button
                     variant="outline"
@@ -431,9 +431,9 @@ const PlantIdentifier = () => {
                 ) : !searchPerformed ? (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🌿</div>
-                    <h3 className="text-lg font-medium text-gray-700 mb-2">准备开始智能鉴定</h3>
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">准备开始鉴定</h3>
                     <p className="text-gray-500 mb-4">
-                      在左侧输入框中描述您观察到的植物特征，然后点击“AI鉴定”。
+                      在左侧输入框中描述您观察到的植物特征，然后点击“开始鉴定”。
                     </p>
                   </div>
                 ) : filteredResults.length === 0 ? (

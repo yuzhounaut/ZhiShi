@@ -170,7 +170,7 @@ const ImageQuiz = () => {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-800">形态学名词练习</h1>
-            <p className="text-lg text-gray-600 mt-2">使用名词图鉴中的高清图片进行双向练习</p>
+            <p className="text-lg text-gray-600 mt-2">使用形态名词图鉴中的高清图片进行双向练习</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
             <Card onClick={() => startQuiz('term-to-image')} className="hover:shadow-xl hover:border-purple-500 transition-all cursor-pointer bg-white group">
