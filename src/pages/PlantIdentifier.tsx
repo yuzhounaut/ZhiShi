@@ -155,7 +155,7 @@ const PlantIdentifier = () => {
         const avgScore = data.totalScore / querySegments.length;
 
         // Only show results with a reasonable average matching score
-        if (avgScore > 0.3) {
+        if (avgScore > 0.8) {
           const familyInfo = plantFamilies.find(pf => pf.id === familyId);
           finalResults.push({
             familyId: familyId,
@@ -170,11 +170,12 @@ const PlantIdentifier = () => {
       });
 
       finalResults.sort((a, b) => b.aiScore - a.aiScore);
+      const topResults = finalResults.slice(0, 10);
 
       setProgress(100);
       // Small delay to show 100% completion
       setTimeout(() => {
-        setAiResults(finalResults);
+        setAiResults(topResults);
         setIsLoading(false);
         if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
