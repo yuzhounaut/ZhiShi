@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { Search, BookOpen, Folder, ArrowLeft, Image as ImageIcon, ZoomIn, ExternalLink, Calendar, Maximize2 } from 'lucide-react';
 import { getNodesAtPath, searchAtlas, atlasItems, AtlasItem, AtlasNode } from '@/data/atlasData';
+import atlasDefinitions from '@/data/atlasDefinitions.json';
 
 const Atlas = () => {
   const params = useParams();
@@ -211,6 +212,23 @@ const AtlasItemDetail = ({ itemId }: { itemId: string }) => {
 
   const backPath = item.path.slice(0, -1).join('/');
 
+  // Find the most specific definition for the current path
+  const definitionData = useMemo(() => {
+    // Reverse traverse the path to find the most specific term with a definition
+    for (let i = item.path.length - 1; i >= 0; i--) {
+      const term = item.path[i];
+      // @ts-ignore - Importing JSON allows string indexing but TS might complain without proper type
+      const def = atlasDefinitions[term];
+      if (def) {
+        return {
+          term,
+          ...def
+        };
+      }
+    }
+    return null;
+  }, [item.path]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -265,6 +283,18 @@ const AtlasItemDetail = ({ itemId }: { itemId: string }) => {
                     </React.Fragment>
                   ))}
                 </div>
+
+                {definitionData && (
+                  <div className="bg-green-50/50 rounded-lg p-6 border border-green-100 mt-6">
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-gray-900">{definitionData.term}</h3>
+                      <span className="text-sm font-medium text-gray-500 font-mono">{definitionData.english}</span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">
+                      {definitionData.definition}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="w-full md:w-64 space-y-4">
