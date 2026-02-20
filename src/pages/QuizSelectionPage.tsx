@@ -3,52 +3,54 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { plantFamilies } from '@/data/plantData';
-import { BookOpenText, Image as ImageIcon } from 'lucide-react';
+import { BookOpenText, Image as ImageIcon, GraduationCap } from 'lucide-react';
 
 const QuizSelectionPage = () => {
   const familiesToDisplay = plantFamilies;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-lime-100 to-green-100 py-8 px-4">
-      <div className="container mx-auto max-w-5xl">
-        <header className="text-center mb-12">
-          <BookOpenText className="h-16 w-16 mx-auto text-green-700 mb-4" />
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            互动问答
+    <div className="min-h-screen bg-background text-foreground py-12 px-4 transition-colors duration-300">
+      <div className="container mx-auto max-w-6xl">
+        <header className="text-center mb-16 space-y-4">
+          <div className="inline-block p-4 bg-primary/5 rounded-full mb-4">
+            <BookOpenText className="h-12 w-12 text-primary" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-2 tracking-tight">
+            互动问答挑战
           </h1>
-          <p className="text-lg text-gray-700">
-            选择一个模式，开始您的学习之旅，测试您的植物学知识！
+          <p className="text-xl text-muted-foreground font-light max-w-2xl mx-auto">
+            通过专业的形态学测试，巩固您的植物分类知识体系。
           </p>
         </header>
 
         {familiesToDisplay.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-xl text-gray-600">暂无可供挑战的植物科。</p>
+          <div className="text-center py-16 bg-card rounded-xl border border-dashed border-border/60">
+            <p className="text-xl text-muted-foreground font-serif">暂无可供挑战的植物科。</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Card for the Morphology Image Quiz */}
-            <Card className="hover:shadow-xl transition-shadow duration-300 border-indigo-200 flex flex-col bg-white">
-                 <CardHeader>
+            <Card className="hover:shadow-xl transition-all duration-300 border-border/60 hover:border-primary/40 flex flex-col bg-card hover:-translate-y-1 group">
+                 <CardHeader className="pb-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <CardTitle className="text-indigo-700 text-2xl">形态学模块</CardTitle>
-                      <CardDescription className="text-gray-500">图文双向练习</CardDescription>
+                      <CardTitle className="text-primary text-2xl font-serif font-bold group-hover:text-primary/80 transition-colors">形态学模块</CardTitle>
+                      <CardDescription className="text-muted-foreground font-serif italic mt-1">图文双向练习</CardDescription>
                     </div>
-                    <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 whitespace-nowrap">
-                      <ImageIcon className="h-4 w-4 mr-1"/>
-                      练习
+                    <Badge variant="outline" className="bg-secondary/30 text-primary border-primary/20 whitespace-nowrap">
+                      <ImageIcon className="h-3.5 w-3.5 mr-1.5"/>
+                      图鉴模式
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                    通过“名词认图”和“图片识词”的双向练习，快速掌握核心形态学名词。
+                  <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
+                    通过“名词认图”和“图片识词”的双向练习，系统掌握核心形态学专业术语。
                   </p>
                 </CardContent>
-                <div className="p-6 pt-0">
+                <div className="p-6 pt-0 mt-auto">
                   <Link to="/image-quiz">
-                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md h-11 text-base">
                       开始图文练习
                     </Button>
                   </Link>
@@ -56,27 +58,28 @@ const QuizSelectionPage = () => {
             </Card>
 
             {familiesToDisplay.map((family) => (
-              <Card key={family.id} className="hover:shadow-xl transition-shadow duration-300 border-yellow-200 flex flex-col bg-white">
-                <CardHeader>
+              <Card key={family.id} className="hover:shadow-xl transition-all duration-300 border-border/60 hover:border-primary/40 flex flex-col bg-card hover:-translate-y-1 group">
+                <CardHeader className="pb-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <CardTitle className="text-lime-700 text-2xl">{family.chineseName}</CardTitle>
-                      <CardDescription className="text-gray-500 italic">{family.latinName}</CardDescription>
+                      <CardTitle className="text-foreground text-2xl font-serif font-bold group-hover:text-primary transition-colors">{family.chineseName}</CardTitle>
+                      <CardDescription className="text-muted-foreground font-mono italic text-sm mt-1">{family.latinName}</CardDescription>
                     </div>
-                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
+                    <Badge variant="secondary" className="bg-secondary text-primary hover:bg-secondary/80 whitespace-nowrap">
                       {family.sourceType}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-4">
+                  <p className="text-muted-foreground mb-6 text-sm leading-relaxed line-clamp-4">
                     {family.memoryModule}
                   </p>
                 </CardContent>
-                <div className="p-6 pt-0">
+                <div className="p-6 pt-0 mt-auto">
                   <Link to={`/quiz/${family.id}`}>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                      开始挑战：{family.chineseName}
+                    <Button variant="outline" className="w-full border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground h-11 text-base group-hover:border-primary/60">
+                      <GraduationCap className="h-4 w-4 mr-2" />
+                      开始挑战
                     </Button>
                   </Link>
                 </div>

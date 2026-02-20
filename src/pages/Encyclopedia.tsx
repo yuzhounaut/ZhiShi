@@ -4,9 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { plantFamilies } from '@/data/plantData';
-import { Search, ArrowLeft, BookOpen, ExternalLink } from 'lucide-react';
+import { Search, ArrowLeft, BookOpen, ExternalLink, GraduationCap, ArrowRight } from 'lucide-react';
 
 const Encyclopedia = () => {
   const { familyId } = useParams();
@@ -28,63 +27,70 @@ const Encyclopedia = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background text-foreground py-12 px-4 transition-colors duration-300">
+      <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <BookOpen className="h-8 w-8 text-green-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">科特征知识库</h1>
-          </div>
-          <p className="text-gray-600 text-lg mb-6">
-            浏览完整的植物科数据库，深入了解各种植物的特征和分类
-          </p>
+        <div className="mb-12 text-center md:text-left">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div>
+              <div className="flex items-center justify-center md:justify-start mb-2">
+                 <BookOpen className="h-8 w-8 text-primary mr-3" />
+                 <h1 className="text-4xl font-serif font-bold text-foreground">科特征知识库</h1>
+              </div>
+              <p className="text-muted-foreground text-lg ml-1">
+                浏览完整的植物科数据库，深入了解分类特征
+              </p>
+            </div>
 
-          {/* Search Bar */}
-          <div className="max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="搜索植物科名或特征关键词..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+             {/* Search Bar */}
+            <div className="w-full md:max-w-md">
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-primary transition-colors" />
+                <Input
+                  type="text"
+                  placeholder="搜索科名、拉丁名或特征..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-12 bg-card border-border focus:border-primary/50 text-foreground shadow-sm"
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Results */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {filteredFamilies.map((family) => (
-            <Card key={family.id} className="hover:shadow-lg transition-shadow duration-300 border-green-100">
-              <CardHeader>
+            <Card key={family.id} className="hover:shadow-lg transition-all duration-300 border-border/60 hover:border-primary/30 bg-card group">
+              <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-green-800 text-xl">{family.chineseName}</CardTitle>
-                    <p className="text-gray-500 italic text-sm">{family.latinName}</p>
+                    <CardTitle className="text-xl font-serif text-foreground group-hover:text-primary transition-colors">
+                        {family.chineseName}
+                    </CardTitle>
+                    <p className="text-muted-foreground italic text-sm font-mono mt-1">{family.latinName}</p>
                   </div>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  <Badge variant="secondary" className="bg-secondary text-primary hover:bg-secondary/80">
                     {family.sourceType}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-4">
+                <p className="text-muted-foreground mb-6 text-sm leading-relaxed line-clamp-3 h-16">
                   {family.memoryModule}
                 </p>
 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <Link to={`/encyclopedia/families/${family.id}`} className="flex-1">
-                    <Button className="w-full bg-green-600 hover:bg-green-700" size="sm">
-                      <ExternalLink className="h-4 w-4 mr-1" />
-                      查看详情
+                    <Button variant="outline" className="w-full border-primary/20 text-primary hover:bg-primary/5 hover:text-primary group-hover:border-primary/40" size="sm">
+                      <ExternalLink className="h-3.5 w-3.5 mr-2" />
+                      详情
                     </Button>
                   </Link>
                   <Link to={`/quiz/${family.id}`}>
-                    <Button variant="outline" size="sm">
-                      问答
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm" size="sm">
+                      <GraduationCap className="h-3.5 w-3.5 mr-2" />
+                      练习
                     </Button>
                   </Link>
                 </div>
@@ -94,25 +100,25 @@ const Encyclopedia = () => {
         </div>
 
         {filteredFamilies.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">未找到相关结果</h3>
-            <p className="text-gray-500">
-              请尝试使用其他关键词搜索
+          <div className="text-center py-16 bg-card/30 rounded-lg border border-dashed border-border">
+            <div className="text-6xl mb-4 grayscale opacity-50">🌿</div>
+            <h3 className="text-xl font-serif text-foreground mb-2">未找到相关结果</h3>
+            <p className="text-muted-foreground">
+              请尝试更换关键词，或浏览下方完整列表
             </p>
           </div>
         )}
 
         {/* Note Footer */}
-        <div className="mt-16 p-6 bg-white rounded-lg border border-gray-200 shadow-sm text-sm text-gray-600 leading-relaxed">
-          <p className="font-semibold mb-2 text-gray-800">被子植物科筛选依据：</p>
-          <ol className="list-decimal list-inside space-y-2">
+        <div className="mt-8 p-8 bg-card rounded-xl border border-border shadow-sm text-sm text-muted-foreground leading-relaxed max-w-4xl mx-auto">
+          <p className="font-bold text-foreground mb-4 text-base font-serif">被子植物科筛选依据说明：</p>
+          <ol className="list-decimal list-inside space-y-3 marker:text-primary/70">
             <li>药典药材数量2及以上的科68个，药材数量1来源物种2及以上的科11个，药材数量1来源物种1较常见科20个，计99科；</li>
             <li>地方特色科筛选9个；</li>
             <li>新拆科6个（睡莲科拆出莲科，木兰科拆出五味子科，百合科拆出藜芦科、菝葜科、天门冬科，毛茛科拆出芍药科）；</li>
             <li>合并科扣去9个（紫金牛科并入报春花科，藜科并入苋科，浮萍科并入天南星科，七叶树科并入无患子科，木棉科并入锦葵科，鹿蹄草科并入杜鹃花科，败酱科/川续断科并入忍冬科，萝藦科并入夹竹桃科，石榴科并入千屈菜科但该科仅石榴1种药材故科数不减）；</li>
           </ol>
-          <p className="mt-2 font-medium">共计105科。</p>
+          <p className="mt-4 font-bold text-primary text-right">共计105科</p>
         </div>
       </div>
     </div>
@@ -124,13 +130,13 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
 
   if (!family) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md mx-auto">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-bold mb-4">未找到该植物科</h2>
-            <p className="text-gray-600 mb-4">请检查链接是否正确</p>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md mx-auto border-none shadow-xl">
+          <CardContent className="p-10 text-center">
+            <h2 className="text-2xl font-serif font-bold mb-4 text-foreground">未找到该植物科</h2>
+            <p className="text-muted-foreground mb-8">请检查链接是否正确</p>
             <Link to="/encyclopedia/families">
-              <Button>返回列表</Button>
+              <Button className="w-full">返回列表</Button>
             </Link>
           </CardContent>
         </Card>
@@ -139,20 +145,20 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-background text-foreground py-12 px-4">
+      <div className="container mx-auto px-4 max-w-5xl">
         {/* Header */}
-        <div className="mb-8">
-          <Link to="/encyclopedia/families" className="inline-flex items-center text-green-600 hover:text-green-700 mb-4">
+        <div className="mb-10">
+          <Link to="/encyclopedia/families" className="inline-flex items-center text-muted-foreground hover:text-primary mb-6 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
+            返回知识库列表
           </Link>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-border pb-6 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{family.chineseName}</h1>
-              <p className="text-gray-500 italic text-lg">{family.latinName}</p>
+              <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-2 tracking-tight">{family.chineseName}</h1>
+              <p className="text-muted-foreground italic text-xl font-mono">{family.latinName}</p>
             </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-800 text-sm px-3 py-1">
+            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-base px-4 py-1.5 self-start md:self-center">
               {family.sourceType}
             </Badge>
           </div>
@@ -160,73 +166,62 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
 
         <div className="space-y-8">
           {/* Main Description */}
-          <Card>
+          <Card className="border-none shadow-md bg-card overflow-hidden">
+            <div className="h-1 bg-primary w-full" />
             <CardHeader>
-              <CardTitle className="text-green-800">科特征记忆模块</CardTitle>
+              <CardTitle className="text-xl font-serif text-primary flex items-center">
+                 <BookOpen className="h-5 w-5 mr-2" />
+                 科特征记忆模块
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">{family.memoryModule}</p>
-            </CardContent>
-          </Card>
-
-          {/* Images Placeholder */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-green-800">植物图片</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">🌿</div>
-                    <p className="text-gray-600 text-sm">{family.chineseName}代表植物</p>
-                  </div>
-                </div>
-                <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">🌸</div>
-                    <p className="text-gray-600 text-sm">花部特征</p>
-                  </div>
-                </div>
-              </div>
+              <p className="text-foreground/90 leading-loose text-lg whitespace-pre-wrap pl-1">{family.memoryModule}</p>
             </CardContent>
           </Card>
 
           {/* AI Identification Module */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-green-800">未知科检索模块 (AI 识别参考)</CardTitle>
+          <Card className="border-none shadow-sm bg-card/50">
+             <CardHeader>
+              <CardTitle className="text-lg font-serif text-foreground/80 flex items-center">
+                 <Search className="h-5 w-5 mr-2" />
+                 未知科检索模块 (AI 识别参考)
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="list-disc list-inside space-y-2 text-gray-700 italic">
-                {family.identificationModule.split(/[。；]/).filter(s => s.trim()).map((trait, idx) => (
-                  <li key={idx}>{trait.trim()}</li>
-                ))}
-              </ul>
+              <div className="bg-background rounded-lg p-6 border border-border">
+                <ul className="grid md:grid-cols-2 gap-3 text-muted-foreground">
+                    {family.identificationModule.split(/[。；]/).filter(s => s.trim()).map((trait, idx) => (
+                    <li key={idx} className="flex items-start">
+                        <span className="text-primary mr-2">•</span>
+                        {trait.trim()}
+                    </li>
+                    ))}
+                </ul>
+              </div>
             </CardContent>
           </Card>
 
           {/* Trait Details (Parsed) */}
-          <Card>
+          <Card className="border-none shadow-md bg-card">
             <CardHeader>
-              <CardTitle className="text-green-800">结构化特征详情</CardTitle>
+              <CardTitle className="text-xl font-serif text-primary">结构化特征详情</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-x-6 gap-y-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {Object.entries(family.traits || {}).map(([category, traits]) => (
                   (traits as string[]).length > 0 && (
-                    <div key={category}>
-                      <h4 className="font-medium text-gray-800 mb-3 capitalize">
-                        {category === 'growth' ? '生长习性' :
-                         category === 'root' ? '根部特征' :
-                         category === 'stem' ? '茎部特征' :
-                         category === 'leaf' ? '叶部特征' :
-                         category === 'flower' ? '花部特征' :
-                         category === 'fruit' ? '果实特征' : category}
+                    <div key={category} className="bg-background/50 p-4 rounded-lg border border-border/50">
+                      <h4 className="font-medium text-foreground mb-4 pb-2 border-b border-border/50 capitalize flex items-center">
+                        {category === 'growth' ? '🌱 生长习性' :
+                         category === 'root' ? '🫚 根部特征' :
+                         category === 'stem' ? '🎋 茎部特征' :
+                         category === 'leaf' ? '🍃 叶部特征' :
+                         category === 'flower' ? '🌸 花部特征' :
+                         category === 'fruit' ? '🍎 果实特征' : category}
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {(traits as string[]).map((trait) => (
-                          <Badge key={trait} variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          <Badge key={trait} variant="secondary" className="bg-secondary/50 text-foreground border-transparent hover:bg-secondary">
                             {trait}
                           </Badge>
                         ))}
@@ -239,15 +234,17 @@ const FamilyDetail = ({ familyId }: { familyId: string }) => {
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
             <Link to={`/quiz/${family.id}`}>
-              <Button className="bg-green-600 hover:bg-green-700">
-                📚 开始问答挑战
+              <Button size="lg" className="w-full sm:w-auto min-w-[200px] bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
+                <GraduationCap className="h-5 w-5 mr-2" />
+                开始问答挑战
               </Button>
             </Link>
-            <Link to="/identify">
-              <Button variant="outline">
-                🔍 使用智能鉴定
+            <Link to="/identifier">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto min-w-[200px] border-primary text-primary hover:bg-primary/5">
+                <Search className="h-5 w-5 mr-2" />
+                使用智能鉴定
               </Button>
             </Link>
           </div>

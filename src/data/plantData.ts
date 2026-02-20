@@ -94,7 +94,7 @@ export const plantTraits: PlantTrait[] = [
 
 // Helper to parse identificationModule into structured traits
 const parseTraits = (idModule: string) => {
-  const traits: any = {
+  const traits: { [key: string]: string[] } = {
     growth: [],
     root: [],
     stem: [],
@@ -129,6 +129,7 @@ const parseTraits = (idModule: string) => {
 };
 
 // Map CSV data to PlantFamily interface
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const plantFamilies: PlantFamily[] = (plantFamiliesData as any[]).map(item => {
   return {
     ...item,

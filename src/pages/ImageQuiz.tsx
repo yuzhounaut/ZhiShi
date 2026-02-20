@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { atlasItems, AtlasItem } from '@/data/atlasData';
-import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Award, Image as ImageIcon, Type } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, RotateCcw, Award, Image as ImageIcon, Type, ArrowRight } from 'lucide-react';
 
 type QuizMode = 'term-to-image' | 'image-to-term';
 
@@ -34,8 +34,7 @@ const ImageQuiz = () => {
   const [score, setScore] = useState(0);
 
   const [currentQuestion, setCurrentQuestion] = useState<{ item: AtlasItem, noun: string } | null>(null);
-  const [options, setOptions] = useState<{ item?: AtlasItem, noun?: string }[]>([]);
-
+  const [options, setOptions] = useState<({ item: AtlasItem } | { noun: string })[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null); // item.id for image, noun for term
 
@@ -138,23 +137,23 @@ const ImageQuiz = () => {
 
   if (quizMode === null && questionCount > 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-100 flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-2xl shadow-2xl text-center">
-          <CardHeader className="bg-indigo-600 text-white rounded-t-lg py-8">
-            <Award className="h-20 w-20 mx-auto text-amber-300 mb-3" />
-            <CardTitle className="text-4xl font-bold">练习完成!</CardTitle>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-xl shadow-2xl text-center border-none bg-card overflow-hidden">
+          <CardHeader className="bg-primary text-primary-foreground py-12">
+            <Award className="h-20 w-20 mx-auto text-secondary mb-4" />
+            <CardTitle className="text-4xl font-serif font-bold">练习完成</CardTitle>
           </CardHeader>
-          <CardContent className="p-6 bg-white rounded-b-lg">
-            <p className="text-6xl font-bold text-gray-800 my-4">
-              {score} <span className="text-3xl text-gray-500">/ {TOTAL_QUESTIONS}分</span>
+          <CardContent className="p-10 bg-card">
+            <p className="text-6xl font-serif font-bold text-foreground my-8">
+              {score} <span className="text-3xl text-muted-foreground font-light">/ {TOTAL_QUESTIONS}分</span>
             </p>
-            <Progress value={(score/TOTAL_QUESTIONS)*100} className="w-3/4 mx-auto h-3 mb-6 [&>div]:bg-indigo-500" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-              <Button onClick={restartQuiz} className="bg-indigo-600 hover:bg-indigo-700 text-white text-lg py-3">
+            <Progress value={(score/TOTAL_QUESTIONS)*100} className="w-3/4 mx-auto h-3 mb-12 bg-secondary" indicatorClassName="bg-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Button onClick={restartQuiz} className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg h-12 shadow-md">
                 <RotateCcw className="mr-2 h-5 w-5" />
                 重新开始
               </Button>
-              <Button variant="outline" onClick={() => navigate('/quiz')} className="text-indigo-700 border-indigo-500 hover:bg-indigo-50 text-lg py-3">
+              <Button variant="outline" onClick={() => navigate('/quiz')} className="border-primary/30 text-primary hover:bg-primary/5 text-lg h-12">
                 <ArrowLeft className="mr-2 h-5 w-5" />
                 返回主页
               </Button>
@@ -167,28 +166,35 @@ const ImageQuiz = () => {
 
   if (quizMode === null) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-800">形态学名词练习</h1>
-            <p className="text-lg text-gray-600 mt-2">使用形态名词图鉴中的高清图片进行双向练习</p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="text-center mb-16 space-y-4">
+             <div className="inline-block p-4 bg-primary/5 rounded-full mb-2">
+                <ImageIcon className="h-10 w-10 text-primary" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tight">形态学图文练习</h1>
+            <p className="text-lg text-muted-foreground font-light max-w-xl mx-auto">使用形态名词图鉴中的高清图片进行双向专业测试</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-            <Card onClick={() => startQuiz('term-to-image')} className="hover:shadow-xl hover:border-purple-500 transition-all cursor-pointer bg-white group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-2xl font-bold text-purple-700">名词认图</CardTitle>
-                    <ImageIcon className="h-8 w-8 text-purple-500 group-hover:scale-110 transition-transform" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
+            <Card onClick={() => startQuiz('term-to-image')} className="hover:shadow-xl hover:border-primary/40 transition-all cursor-pointer bg-card border-border/60 hover:-translate-y-1 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                    <CardTitle className="text-2xl font-serif font-bold text-foreground group-hover:text-primary transition-colors">名词认图</CardTitle>
+                    <div className="p-3 bg-secondary/30 rounded-full group-hover:bg-secondary/50 transition-colors">
+                        <ImageIcon className="h-6 w-6 text-primary" />
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-gray-600">根据给出的形态学名词，在四张图中选出正确的图示。</p>
+                    <p className="text-muted-foreground leading-relaxed">根据给出的形态学专业术语，在四张显微或宏观图片中选出正确的图示。</p>
                 </CardContent>
             </Card>
-            <Card onClick={() => startQuiz('image-to-term')} className="hover:shadow-xl hover:border-indigo-500 transition-all cursor-pointer bg-white group">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-2xl font-bold text-indigo-700">图片识词</CardTitle>
-                    <Type className="h-8 w-8 text-indigo-500 group-hover:scale-110 transition-transform" />
+            <Card onClick={() => startQuiz('image-to-term')} className="hover:shadow-xl hover:border-primary/40 transition-all cursor-pointer bg-card border-border/60 hover:-translate-y-1 group">
+                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                    <CardTitle className="text-2xl font-serif font-bold text-foreground group-hover:text-primary transition-colors">图片识词</CardTitle>
+                     <div className="p-3 bg-secondary/30 rounded-full group-hover:bg-secondary/50 transition-colors">
+                        <Type className="h-6 w-6 text-primary" />
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-gray-600">根据给出的特征图片，在四个名词中选出正确的描述。</p>
+                    <p className="text-muted-foreground leading-relaxed">根据给出的植物特征图片，准确识别并选择对应的形态学名词。</p>
                 </CardContent>
             </Card>
         </div>
@@ -197,31 +203,33 @@ const ImageQuiz = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col items-center">
-      <div className="w-full max-w-4xl">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <Button variant="ghost" onClick={restartQuiz} className="text-gray-700 hover:text-red-700 px-2">
+    <div className="min-h-screen bg-background text-foreground py-12 px-4 transition-colors duration-300 flex flex-col items-center">
+      <div className="w-full max-w-5xl">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="ghost" onClick={restartQuiz} className="text-muted-foreground hover:text-destructive px-2 -ml-2">
               <ArrowLeft className="h-5 w-5 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">退出练习</span>
+              <span className="hidden sm:inline font-medium">退出练习</span>
             </Button>
-            <h1 className="text-xl sm:text-2xl font-bold text-center text-gray-800 flex-grow px-2 truncate">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-center text-foreground flex-grow px-2 truncate tracking-tight">
               {quizMode === 'term-to-image' ? '名词认图' : '图片识词'}
             </h1>
-            <Badge variant="secondary" className="text-sm bg-gray-200 text-gray-900 whitespace-nowrap py-1.5 px-3">
+            <Badge variant="outline" className="text-sm bg-background border-primary/20 text-primary whitespace-nowrap py-1.5 px-3 font-mono">
               得分: {score}
             </Badge>
           </div>
-          <Progress value={(questionCount / TOTAL_QUESTIONS) * 100} className="h-2.5 rounded-full" />
+          <Progress value={(questionCount / TOTAL_QUESTIONS) * 100} className="h-1.5 rounded-full bg-secondary" indicatorClassName="bg-primary" />
         </div>
 
-        <Card className="shadow-lg bg-white overflow-hidden">
-          <CardHeader className="border-b bg-gray-50/50">
-            <CardTitle className="text-center text-2xl sm:text-3xl font-bold text-gray-800">
-              {quizMode === 'term-to-image' ? `请找出：${currentQuestion?.noun}` : '这是什么特征？'}
+        <Card className="shadow-xl bg-card border-border/50 overflow-hidden rounded-xl">
+          <CardHeader className="border-b border-border/40 bg-secondary/10 py-8">
+            <CardTitle className="text-center text-2xl sm:text-3xl font-serif font-bold text-foreground">
+              {quizMode === 'term-to-image' ? (
+                  <span>请找出：<span className="text-primary border-b-2 border-primary/20 pb-1">{currentQuestion?.noun}</span></span>
+              ) : '这是什么特征？'}
             </CardTitle>
             {quizMode === 'image-to-term' && (
-              <div className="w-full aspect-video bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center mt-4">
+              <div className="w-full max-w-2xl mx-auto aspect-video bg-neutral-900 rounded-lg overflow-hidden flex items-center justify-center mt-6 shadow-inner">
                 <img
                   src={currentQuestion?.item.url}
                   alt="特征图片"
@@ -230,53 +238,84 @@ const ImageQuiz = () => {
               </div>
             )}
           </CardHeader>
-          <CardContent className="p-6">
-            <div className={`grid grid-cols-2 gap-4 ${quizMode === 'term-to-image' ? 'sm:grid-cols-2' : 'sm:grid-cols-2'}`}>
-              {options.map((option, idx) => (
-                quizMode === 'term-to-image' ? (
-                  <div
-                    key={option.item?.id || idx}
-                    onClick={() => handleAnswer(option.item!.id)}
-                    className={`relative aspect-square rounded-lg overflow-hidden border-4 cursor-pointer transition-all
-                      ${showFeedback && option.item?.id === currentQuestion?.item.id ? 'border-green-500 scale-105 z-10' : ''}
-                      ${showFeedback && option.item?.id === selectedId && !isCurrentCorrect ? 'border-red-500' : 'border-transparent'}
-                      ${!showFeedback ? 'hover:border-blue-400 hover:shadow-lg' : ''}
-                    `}
-                  >
-                    <img src={option.item?.url} alt="选项图片" className="w-full h-full object-cover"/>
-                    {showFeedback && (
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            {option.item?.id === currentQuestion?.item.id && <CheckCircle className="h-12 w-12 text-white bg-green-500 rounded-full p-1"/>}
-                            {option.item?.id === selectedId && !isCurrentCorrect && <XCircle className="h-12 w-12 text-white bg-red-500 rounded-full p-1"/>}
+          <CardContent className="p-8">
+            <div className={`grid gap-6 ${quizMode === 'term-to-image' ? 'grid-cols-2 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2'}`}>
+              {options.map((option, idx) => {
+                 // Type guard helper
+                 const isItemOption = (opt: typeof option): opt is { item: AtlasItem } => 'item' in opt;
+                 const isNounOption = (opt: typeof option): opt is { noun: string } => 'noun' in opt;
+
+                 if (quizMode === 'term-to-image' && isItemOption(option)) {
+                    return (
+                        <div
+                            key={option.item.id}
+                            onClick={() => handleAnswer(option.item.id)}
+                            className={`relative aspect-[4/3] rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-300 group
+                            ${showFeedback && option.item.id === currentQuestion?.item.id ? 'border-primary ring-4 ring-primary/20 scale-[1.02] z-10' : ''}
+                            ${showFeedback && option.item.id === selectedId && !isCurrentCorrect ? 'border-destructive ring-4 ring-destructive/20 grayscale' : 'border-transparent'}
+                            ${!showFeedback ? 'hover:border-primary/50 hover:shadow-lg hover:-translate-y-1' : ''}
+                            bg-secondary/10
+                            `}
+                        >
+                            <img src={option.item.url} alt="选项图片" className="w-full h-full object-cover"/>
+                            {showFeedback && (
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                                    {option.item.id === currentQuestion?.item.id && (
+                                        <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-lg">
+                                            <CheckCircle className="h-8 w-8"/>
+                                        </div>
+                                    )}
+                                    {option.item.id === selectedId && !isCurrentCorrect && (
+                                         <div className="bg-destructive text-destructive-foreground rounded-full p-2 shadow-lg">
+                                            <XCircle className="h-8 w-8"/>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                    )}
-                  </div>
-                ) : (
-                  <Button
-                    key={option.noun || idx}
-                    onClick={() => handleAnswer(option.noun!)}
-                    variant={showFeedback ? (option.noun === currentQuestion?.noun ? 'default' : (option.noun === selectedId ? 'destructive' : 'outline')) : 'outline'}
-                    className={`h-auto text-lg p-6 justify-center transition-all duration-300 break-words whitespace-normal
-                      ${showFeedback && option.noun === currentQuestion?.noun ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg scale-105' : ''}
-                    `}
-                    disabled={showFeedback}
-                  >
-                    {option.noun}
-                  </Button>
-                )
-              ))}
+                    );
+                 } else if (quizMode === 'image-to-term' && isNounOption(option)) {
+                     return (
+                        <Button
+                            key={option.noun}
+                            onClick={() => handleAnswer(option.noun)}
+                            variant="outline"
+                            className={`h-auto text-lg p-6 justify-center transition-all duration-300 break-words whitespace-normal border-border/60 hover:bg-secondary/20
+                            ${showFeedback && option.noun === currentQuestion?.noun ? 'bg-primary hover:bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]' : ''}
+                            ${showFeedback && option.noun === selectedId && !isCurrentCorrect ? 'bg-destructive/10 text-destructive border-destructive/50' : ''}
+                            `}
+                            disabled={showFeedback}
+                        >
+                            {option.noun}
+                        </Button>
+                     );
+                 }
+                 return null;
+              })}
             </div>
 
             {showFeedback && (
-              <div className="mt-8 flex flex-col items-center space-y-4 animate-in fade-in slide-in-from-bottom-4">
-                <div className={`text-lg font-bold ${isCurrentCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                   {isCurrentCorrect ? '回答正确！' : `回答错误，正确答案是：${currentQuestion?.noun}`}
+              <div className="mt-10 flex flex-col items-center space-y-6 animate-in fade-in slide-in-from-bottom-4 bg-secondary/10 p-6 rounded-xl border border-border/50">
+                <div className="text-center">
+                    <div className={`text-xl font-serif font-bold mb-2 flex items-center justify-center gap-2 ${isCurrentCorrect ? 'text-primary' : 'text-destructive'}`}>
+                        {isCurrentCorrect ? <CheckCircle className="h-6 w-6"/> : <XCircle className="h-6 w-6"/>}
+                        {isCurrentCorrect ? '回答正确！' : `回答错误`}
+                    </div>
+                    {!isCurrentCorrect && (
+                         <p className="text-lg text-foreground font-medium">正确答案是：<span className="text-primary font-bold">{currentQuestion?.noun}</span></p>
+                    )}
                 </div>
-                <div className="text-sm text-gray-500 italic mb-2">
-                  图源：{currentQuestion?.item.path.join(' > ')}
+
+                <div className="text-sm text-muted-foreground italic font-serif bg-background px-4 py-2 rounded-full border border-border/50 shadow-sm">
+                  图源分类：{currentQuestion?.item.path.join(' > ')}
                 </div>
-                <Button onClick={handleNextQuestion} size="lg" className="px-12 py-6 text-xl bg-indigo-600 hover:bg-indigo-700">
-                    {questionCount >= TOTAL_QUESTIONS ? '查看最终得分' : '下一题'}
+
+                <Button onClick={handleNextQuestion} size="lg" className="px-10 py-6 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5">
+                    {questionCount >= TOTAL_QUESTIONS ? (
+                        <>查看最终得分 <ArrowRight className="ml-2 h-5 w-5" /></>
+                    ) : (
+                        <>下一题 <ArrowRight className="ml-2 h-5 w-5" /></>
+                    )}
                 </Button>
               </div>
             )}
