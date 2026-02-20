@@ -7,52 +7,57 @@ import { BookOpen, Users, Award, Leaf, Search, Bot, Sparkles, BookMarked } from 
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-8 px-4">
-      {/* Hero Section - Simplified */}
-      <section className="text-center mb-12">
-        <div className="container mx-auto max-w-3xl">
-          <Leaf className="h-20 w-20 mx-auto text-green-600 mb-4" />
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            欢迎来到 <span className="text-green-600">植识</span>
+    <div className="min-h-screen bg-background py-12 px-4 transition-colors duration-300">
+      {/* Hero Section */}
+      <section className="text-center mb-16 space-y-6">
+        <div className="container mx-auto max-w-3xl flex flex-col items-center">
+          <div className="p-4 bg-primary/5 rounded-full mb-6">
+            <Leaf className="h-24 w-24 text-primary" />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground mb-4 tracking-tight">
+            欢迎来到 <span className="text-primary italic">植识</span>
           </h1>
-          <p className="text-lg text-gray-700 mb-8">
-            您的智能植物识别与学习助手。
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            探索自然之美，开启您的智能植物识别与深度学习之旅。
           </p>
         </div>
       </section>
 
       {/* Core Feature: Plant Identification */}
-      <section className="mb-16">
-        <div className="container mx-auto max-w-2xl">
-          <Card className="bg-slate-100 text-slate-800 shadow-xl overflow-hidden">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-center mb-3">
-                <Search className="h-12 w-12 mr-3" /> {/* Icon color might need adjustment if it was relying on text-white inheritance */}
-                <CardTitle className="text-3xl md:text-4xl font-bold">智能鉴定</CardTitle>
+      <section className="mb-20">
+        <div className="container mx-auto max-w-3xl">
+          <Card className="bg-card border-none shadow-2xl overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent" />
+            <CardHeader className="pb-8 pt-10 text-center">
+              <div className="flex justify-center mb-6">
+                 <div className="bg-primary/10 p-4 rounded-full">
+                    <Search className="h-10 w-10 text-primary" />
+                 </div>
               </div>
-              <CardDescription className="text-slate-600 text-center text-md">
-                通过选择植物特征关键词，快速识别未知植物。
+              <CardTitle className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">智能鉴定</CardTitle>
+              <CardDescription className="text-lg text-muted-foreground">
+                基于形态特征的专业植物分类与识别系统
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
-              <div className="flex flex-wrap justify-center gap-2 mb-6">
-                <Badge variant="secondary" className="bg-green-700 text-white text-xs">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  实时搜索
+            <CardContent className="text-center pb-10 px-6">
+              <div className="flex flex-wrap justify-center gap-3 mb-10">
+                <Badge variant="secondary" className="px-4 py-1.5 text-sm font-medium">
+                  <Sparkles className="h-3.5 w-3.5 mr-2 text-primary" />
+                  实时特征分析
                 </Badge>
-                <Badge variant="secondary" className="bg-green-700 text-white text-xs">
-                  <Bot className="h-3 w-3 mr-1" />
-                  自定义特征
+                <Badge variant="secondary" className="px-4 py-1.5 text-sm font-medium">
+                  <Bot className="h-3.5 w-3.5 mr-2 text-primary" />
+                  AI 辅助识别
                 </Badge>
-                <Badge variant="secondary" className="bg-green-700 text-white text-xs">
-                  <Users className="h-3 w-3 mr-1" />
-                  精准识别
+                <Badge variant="secondary" className="px-4 py-1.5 text-sm font-medium">
+                  <Users className="h-3.5 w-3.5 mr-2 text-primary" />
+                  科属精准定位
                 </Badge>
               </div>
-              <Link to="/identify">
+              <Link to="/identifier">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-white text-green-600 hover:bg-green-50 text-lg font-semibold py-3 px-8 shadow-md transition-transform hover:scale-105"
+                  className="w-full sm:w-auto min-w-[200px] h-14 text-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
                 >
                   立即开始鉴定
                 </Button>
@@ -63,46 +68,53 @@ const Home = () => {
       </section>
 
       {/* Secondary Features */}
-      <section className="mb-16">
-        <div className="container mx-auto max-w-5xl text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">探索更多功能</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <Link to="/encyclopedia/families" className="block">
-              <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
+      <section className="mb-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-3 gap-8">
+            <Link to="/encyclopedia/families" className="group block h-full">
+              <Card className="h-full border-none shadow-md hover:shadow-xl transition-all duration-300 bg-card group-hover:-translate-y-1">
                 <CardHeader>
-                  <div className="flex items-center text-green-700">
-                    <BookMarked className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">科特征知识库</CardTitle>
+                  <div className="mb-4 inline-block p-3 bg-secondary/30 rounded-lg group-hover:bg-secondary/50 transition-colors">
+                    <BookMarked className="h-8 w-8 text-primary" />
                   </div>
+                  <CardTitle className="text-xl font-serif text-foreground">科特征知识库</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 text-sm">浏览详细的植物科属特征与识别要点</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    系统化整理植物科属特征，提供详尽的识别要点与形态描述。
+                  </p>
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/encyclopedia/atlas" className="block">
-              <Card className="hover:shadow-lg transition-shadow duration-300 h-full border-green-100">
+
+            <Link to="/encyclopedia/atlas" className="group block h-full">
+              <Card className="h-full border-none shadow-md hover:shadow-xl transition-all duration-300 bg-card group-hover:-translate-y-1">
                 <CardHeader>
-                  <div className="flex items-center text-green-600">
-                    <BookOpen className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">形态名词图鉴</CardTitle>
+                  <div className="mb-4 inline-block p-3 bg-secondary/30 rounded-lg group-hover:bg-secondary/50 transition-colors">
+                    <BookOpen className="h-8 w-8 text-primary" />
                   </div>
+                  <CardTitle className="text-xl font-serif text-foreground">形态名词图鉴</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 text-sm">通过层级分类浏览植物名词与形态图片</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    图文并茂的植物学术语词典，通过直观图像理解专业形态名词。
+                  </p>
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/quiz" className="block"> {/* Assuming /quiz is the main quiz page */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 h-full">
+
+            <Link to="/quiz" className="group block h-full">
+              <Card className="h-full border-none shadow-md hover:shadow-xl transition-all duration-300 bg-card group-hover:-translate-y-1">
                 <CardHeader>
-                  <div className="flex items-center text-blue-600">
-                    <Award className="h-8 w-8 mr-3" />
-                    <CardTitle className="text-xl">互动问答</CardTitle>
+                  <div className="mb-4 inline-block p-3 bg-secondary/30 rounded-lg group-hover:bg-secondary/50 transition-colors">
+                    <Award className="h-8 w-8 text-primary" />
                   </div>
+                  <CardTitle className="text-xl font-serif text-foreground">互动问答挑战</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">通过互动问答巩固您的植物学知识</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    通过趣味性问答测试您的植物学知识，巩固学习成果。
+                  </p>
                 </CardContent>
               </Card>
             </Link>
@@ -110,48 +122,64 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Original Features - Simplified and moved down */}
-      <section className="py-12 px-4 bg-white rounded-lg shadow">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">植物科学习与挑战</h2>
-            <p className="text-gray-600">每个科都有独特的识别特征，来测试你的植物学知识吧！</p>
+      {/* Featured Families */}
+      <section className="py-16 bg-card/50 rounded-3xl mx-4 lg:mx-8 mb-8">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-border pb-6">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+                热门科属概览
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                深入了解常见植物科的独特特征与分类学地位
+              </p>
+            </div>
+            <Link to="/quiz" className="hidden md:block">
+               <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                  查看全部
+               </Button>
+            </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {plantFamilies.slice(0, 3).map((family) => ( // Displaying only first 3 for brevity, can be more
-              <Card key={family.id} className="hover:shadow-lg transition-shadow duration-300 border-green-100">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {plantFamilies.slice(0, 3).map((family) => (
+              <Card key={family.id} className="bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg group">
                 <CardHeader>
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start mb-2">
                     <div>
-                      <CardTitle className="text-green-800 text-lg">{family.chineseName}</CardTitle>
-                      <CardDescription className="text-gray-500 italic text-sm">{family.latinName}</CardDescription>
+                      <CardTitle className="text-xl font-serif text-foreground group-hover:text-primary transition-colors">
+                        {family.chineseName}
+                      </CardTitle>
+                      <CardDescription className="text-sm font-mono italic text-muted-foreground mt-1">
+                        {family.latinName}
+                      </CardDescription>
                     </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                    <Badge variant="outline" className="text-xs border-primary/20 text-primary bg-primary/5">
                       {family.sourceType}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-3 text-sm leading-relaxed line-clamp-3">{family.memoryModule}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-6">
+                    {family.memoryModule}
+                  </p>
                   <Link to={`/quiz/${family.id}`}>
-                    <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                      开始挑战
+                    <Button variant="secondary" size="sm" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      开始学习
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
             ))}
           </div>
-          {plantFamilies.length > 3 && (
-            <div className="text-center mt-8">
-              <Link to="/quiz"> {/* Link to a page that shows all families for quiz */}
-                <Button variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-                  查看所有科挑战
-                </Button>
-              </Link>
-            </div>
-          )}
+
+          <div className="mt-8 text-center md:hidden">
+            <Link to="/quiz">
+               <Button variant="outline" className="w-full border-primary text-primary">
+                  查看全部
+               </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

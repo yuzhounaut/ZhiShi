@@ -25,7 +25,7 @@ const Header = () => {
     { name: '科特征知识库', path: '/encyclopedia/families', icon: '📖' },
     { name: '形态名词图鉴', path: '/encyclopedia/atlas', icon: '🖼️' },
     { name: '互动问答', path: '/quiz', icon: '📚' },
-    { name: '智能鉴定', path: '/identify', icon: '🔍' },
+    { name: '智能鉴定', path: '/identifier', icon: '🔍' },
   ];
 
   const isActive = (item: NavigationItem) => {
@@ -36,11 +36,11 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 font-bold text-xl text-green-700">
+          <Link to="/" className="flex items-center space-x-2 font-bold text-xl text-primary font-serif">
             <Leaf className="h-6 w-6" />
             <span>植识</span>
           </Link>
@@ -52,11 +52,11 @@ const Header = () => {
                 <DropdownMenu key={item.name}>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant={isActive(item) ? "default" : "ghost"}
+                      variant={isActive(item) ? "secondary" : "ghost"}
                       className={`px-4 py-2 ${
                         isActive(item)
-                          ? "bg-green-100 text-green-800 hover:bg-green-200"
-                          : "text-gray-600 hover:text-green-700 hover:bg-green-50"
+                          ? "bg-secondary text-primary hover:bg-secondary/80 font-medium"
+                          : "text-muted-foreground hover:text-primary hover:bg-secondary/50"
                       }`}
                     >
                       <span className="mr-2">{item.icon}</span>
@@ -64,10 +64,10 @@ const Header = () => {
                       <ChevronDown className="ml-1 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 bg-popover text-popover-foreground border-border">
                     {item.subItems.map((sub) => (
                       <DropdownMenuItem key={sub.path} asChild>
-                        <Link to={sub.path} className="w-full cursor-pointer">
+                        <Link to={sub.path} className="w-full cursor-pointer focus:bg-secondary focus:text-primary">
                           {sub.name}
                         </Link>
                       </DropdownMenuItem>
@@ -77,12 +77,12 @@ const Header = () => {
               ) : (
                 <Link key={item.path} to={item.path}>
                   <Button
-                    variant={isActive(item) ? "default" : "ghost"}
+                    variant={isActive(item) ? "secondary" : "ghost"}
                     className={`px-4 py-2 ${
                       isActive(item)
-                        ? "bg-green-100 text-green-800 hover:bg-green-200"
-                        : "text-gray-600 hover:text-green-700 hover:bg-green-50"
-                    }`}
+                        ? "bg-secondary text-primary hover:bg-secondary/80 font-medium"
+                        : "text-muted-foreground hover:text-primary hover:bg-secondary/50"
+                      }`}
                   >
                     <span className="mr-2">{item.icon}</span>
                     {item.name}
@@ -99,9 +99,9 @@ const Header = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-background border-l border-border">
               <div className="flex flex-col space-y-4 mt-8">
-                <div className="flex items-center space-x-2 font-bold text-xl text-green-700 mb-6">
+                <div className="flex items-center space-x-2 font-bold text-xl text-primary mb-6 font-serif">
                   <Leaf className="h-6 w-6" />
                   <span>植识</span>
                 </div>
@@ -109,18 +109,18 @@ const Header = () => {
                   <div key={item.name} className="flex flex-col space-y-1">
                     {item.subItems ? (
                       <>
-                        <div className="flex items-center px-4 py-2 text-gray-500 text-sm font-medium">
+                        <div className="flex items-center px-4 py-2 text-muted-foreground text-sm font-medium">
                           <span className="mr-3 text-lg">{item.icon}</span>
                           {item.name}
                         </div>
                         {item.subItems.map((sub) => (
                           <Link key={sub.path} to={sub.path} onClick={() => setIsOpen(false)}>
                             <Button
-                              variant={location.pathname.startsWith(sub.path) ? "default" : "ghost"}
+                              variant={location.pathname.startsWith(sub.path) ? "secondary" : "ghost"}
                               className={`w-full justify-start pl-12 pr-4 py-3 ${
                                 location.pathname.startsWith(sub.path)
-                                  ? "bg-green-100 text-green-800"
-                                  : "text-gray-600 hover:text-green-700 hover:bg-green-50"
+                                  ? "bg-secondary text-primary font-medium"
+                                  : "text-muted-foreground hover:text-primary hover:bg-secondary/50"
                               }`}
                             >
                               {sub.name}
@@ -131,11 +131,11 @@ const Header = () => {
                     ) : (
                       <Link to={item.path} onClick={() => setIsOpen(false)}>
                         <Button
-                          variant={isActive(item) ? "default" : "ghost"}
+                          variant={isActive(item) ? "secondary" : "ghost"}
                           className={`w-full justify-start px-4 py-3 ${
                             isActive(item)
-                              ? "bg-green-100 text-green-800"
-                              : "text-gray-600 hover:text-green-700 hover:bg-green-50"
+                              ? "bg-secondary text-primary font-medium"
+                              : "text-muted-foreground hover:text-primary hover:bg-secondary/50"
                           }`}
                         >
                           <span className="mr-3 text-lg">{item.icon}</span>

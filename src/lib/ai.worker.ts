@@ -19,7 +19,9 @@ const getCorpusEmbeddings = async (corpus: string[]) => {
   if (precomputedEmbeddings &&
       precomputedTraits &&
       precomputedTraits.length === corpus.length &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (typeof precomputedTraits[0] === 'string' ? precomputedTraits[0] : (precomputedTraits[0] as any).trait) === corpus[0] &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (typeof precomputedTraits[corpus.length - 1] === 'string' ? precomputedTraits[corpus.length - 1] : (precomputedTraits[corpus.length - 1] as any).trait) === corpus[corpus.length - 1]) {
 
     return {
@@ -56,6 +58,7 @@ self.onmessage = async (event) => {
           try {
             extractor = await pipeline('feature-extraction', 'bge-small-zh-v1.5', {
               quantized: true,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               progress_callback: (data: any) => {
                 if (data.status === 'progress') {
                   // Map 0-100 progress of model loading to 20-85 range
@@ -151,6 +154,7 @@ self.onmessage = async (event) => {
       }
       self.postMessage({ type: 'searchBatch_result', id, payload: allResults });
     }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Worker error:", error);
     self.postMessage({ type: 'error', id, error: error.message });

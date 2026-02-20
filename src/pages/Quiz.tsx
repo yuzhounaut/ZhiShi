@@ -164,14 +164,14 @@ const SequentialQuiz = () => {
 
   if (!family) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md text-center py-8">
-          <Lightbulb className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
-          <CardTitle className="text-2xl font-bold text-yellow-700 mb-2">挑战准备中</CardTitle>
-          <CardDescription className="text-gray-600 mb-6">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center py-12 border-none shadow-xl bg-card">
+          <Lightbulb className="h-16 w-16 mx-auto text-primary/40 mb-6" />
+          <CardTitle className="text-2xl font-serif font-bold text-foreground mb-4">挑战准备中</CardTitle>
+          <CardDescription className="text-muted-foreground mb-8">
             未能找到ID为 "{familyId}" 的植物科挑战信息，或该科的特征数据不完整。
           </CardDescription>
-          <Button onClick={() => navigate('/quiz')} variant="outline">
+          <Button onClick={() => navigate('/quiz')} variant="outline" className="border-primary/20 text-primary hover:bg-primary/5">
             <ArrowLeft className="mr-2 h-4 w-4" /> 返回题目选择
           </Button>
         </Card>
@@ -186,35 +186,39 @@ const SequentialQuiz = () => {
 
   if (quizCompleted) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-100 to-blue-100 flex flex-col items-center justify-center p-4">
-            <Card className="w-full max-w-2xl shadow-2xl text-center">
-                <CardHeader className="bg-green-600 text-white rounded-t-lg py-8">
-                    <Trophy className="h-20 w-20 mx-auto text-yellow-300 mb-3" />
-                    <CardTitle className="text-4xl font-bold">挑战完成!</CardTitle>
-                    <CardDescription className="text-green-50 text-lg mt-1">
-                        您已完成对 <span className="font-semibold">{family.chineseName}</span> 科的特征认知挑战。
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+            <Card className="w-full max-w-2xl shadow-2xl text-center border-none bg-card overflow-hidden">
+                <CardHeader className="bg-primary text-primary-foreground py-10">
+                    <Trophy className="h-20 w-20 mx-auto text-yellow-300/90 mb-4" />
+                    <CardTitle className="text-4xl font-serif font-bold">挑战完成</CardTitle>
+                    <CardDescription className="text-primary-foreground/80 text-lg mt-2 font-light">
+                        您已完成对 <span className="font-semibold border-b border-primary-foreground/40 pb-0.5">{family.chineseName}</span> 科的特征认知挑战。
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="p-6 bg-white rounded-b-lg">
-                    <p className="text-6xl font-bold text-gray-800 my-4">
-                        {score} <span className="text-3xl text-gray-500">/ {totalSteps} 关</span>
+                <CardContent className="p-8 md:p-10">
+                    <p className="text-6xl font-serif font-bold text-foreground my-6">
+                        {score} <span className="text-3xl text-muted-foreground font-light">/ {totalSteps} 关</span>
                     </p>
-                    <Progress value={(score/totalSteps)*100} className="w-3/4 mx-auto h-3 mb-6 [&>div]:bg-green-500" />
-                    <div className="space-y-2 my-6">
+                    <Progress value={(score/totalSteps)*100} className="w-3/4 mx-auto h-3 mb-8 bg-secondary" indicatorClassName="bg-primary" />
+
+                    <div className="space-y-3 my-8 text-left max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                         {stepResults.map((result, index) => (
-                            <div key={index} className={`flex items-center justify-between p-2 rounded-md text-sm ${result.isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
-                                <span className="font-semibold">{result.stepName}:</span>
-                                <span className="italic truncate mx-2 flex-1 text-left">“{result.userAnswer}”</span>
-                                {result.isCorrect ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                            <div key={index} className={`flex items-center justify-between p-3 rounded-lg text-sm border ${result.isCorrect ? 'bg-primary/5 border-primary/20 text-foreground' : 'bg-destructive/5 border-destructive/20 text-destructive'}`}>
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                  <span className="font-serif font-bold min-w-[3rem]">{result.stepName}</span>
+                                  <span className="italic truncate text-muted-foreground">“{result.userAnswer}”</span>
+                                </div>
+                                {result.isCorrect ? <CheckCircle className="h-5 w-5 text-primary shrink-0" /> : <XCircle className="h-5 w-5 text-destructive shrink-0" />}
                             </div>
                         ))}
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                        <Button onClick={restartQuiz} className="bg-green-600 hover:bg-green-700 text-white text-lg py-3">
+                        <Button onClick={restartQuiz} className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg h-12 shadow-md">
                             <RotateCcw className="mr-2 h-5 w-5" />
                             再试一次
                         </Button>
-                        <Button variant="outline" onClick={() => navigate('/quiz')} className="text-green-700 border-green-500 hover:bg-green-50 text-lg py-3">
+                        <Button variant="outline" onClick={() => navigate('/quiz')} className="border-primary/30 text-primary hover:bg-primary/5 text-lg h-12">
                             <ArrowLeft className="mr-2 h-5 w-5" />
                             选择其他科
                         </Button>
@@ -226,91 +230,98 @@ const SequentialQuiz = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 p-4 sm:p-6 flex flex-col items-center">
-      <div className="w-full max-w-3xl">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <Button variant="ghost" onClick={() => navigate('/quiz')} className="text-gray-700 hover:text-blue-700 px-2">
+    <div className="min-h-screen bg-background text-foreground py-12 px-4 transition-colors duration-300">
+      <div className="container mx-auto max-w-4xl flex flex-col items-center">
+        <div className="w-full mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <Button variant="ghost" onClick={() => navigate('/quiz')} className="text-muted-foreground hover:text-primary px-2 -ml-2">
               <ArrowLeft className="h-5 w-5 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">返回选择</span>
+              <span className="hidden sm:inline font-medium">返回选择</span>
             </Button>
-            <h1 className="text-xl sm:text-2xl font-bold text-center text-blue-800 flex-grow px-2 truncate">
-              {family.chineseName} - 序贯挑战
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-center text-foreground flex-grow px-2 truncate tracking-tight">
+              {family.chineseName} <span className="text-muted-foreground font-light text-xl mx-2">|</span> 序贯挑战
             </h1>
-            <Badge variant="secondary" className="text-sm bg-blue-100 text-blue-900 whitespace-nowrap py-1.5 px-3">
+            <Badge variant="outline" className="text-sm bg-background border-primary/20 text-primary whitespace-nowrap py-1.5 px-3 font-mono">
               得分: {score}
             </Badge>
           </div>
-          <Progress value={progress} className="h-2.5 rounded-full [&>div]:bg-blue-500" />
+          <Progress value={progress} className="h-1.5 rounded-full bg-secondary" indicatorClassName="bg-primary" />
         </div>
 
-        <Card className="shadow-xl overflow-hidden border-blue-300">
-          <CardHeader className="bg-blue-50 p-5 sm:p-6 border-b border-blue-200">
-            <div className="flex justify-between items-center gap-2 mb-2">
-              <CardTitle className="text-lg sm:text-xl text-blue-900 font-semibold">
-                第 {currentStepIndex + 1} / {totalSteps} 关: 【{currentStepInfo.name}】特征
+        <Card className="w-full shadow-xl overflow-hidden border-border/60 bg-card rounded-xl">
+          <CardHeader className="bg-secondary/20 p-6 sm:p-8 border-b border-border/40">
+            <div className="flex justify-between items-center gap-2 mb-3">
+              <CardTitle className="text-sm uppercase tracking-widest text-muted-foreground font-semibold">
+                第 {currentStepIndex + 1} / {totalSteps} 关
               </CardTitle>
             </div>
-            <p className="text-md sm:text-lg text-gray-800 mt-3 font-medium leading-relaxed">
-              请描述该科植物的 <span className='font-bold text-blue-700'>{currentStepInfo.name}</span> 有什么典型特征？
+            <p className="text-xl sm:text-2xl text-foreground mt-2 font-serif font-medium leading-relaxed">
+              请描述该科植物的 <span className='font-bold text-primary border-b-2 border-primary/20 pb-0.5'>{currentStepInfo.name}</span> 有什么典型特征？
             </p>
           </CardHeader>
 
-          <CardContent className="p-5 sm:p-6 bg-white">
-            <div className="space-y-4 mb-6">
+          <CardContent className="p-6 sm:p-10 bg-card">
+            <div className="space-y-6 mb-8">
               <Input
                 ref={inputRef}
                 type="text"
-                placeholder={`描述${currentStepInfo.name}特征, 如 "${family.traits[currentStepInfo.key]?.[0] || '...'}"`}
+                placeholder={`描述${currentStepInfo.name}特征...`}
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && !showFeedback && userAnswer.trim() !== '' && handleAnswerSubmit()}
                 disabled={showFeedback || isLoading}
-                className="text-base py-3 px-4 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                className="text-lg py-6 px-6 h-16 border-border focus:border-primary/50 focus:ring-primary/20 shadow-sm transition-all"
               />
             </div>
 
             {isLoading && (
-                <div className="text-center py-4">
-                    <Bot className="h-8 w-8 text-blue-600 animate-spin mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-600">{loadingMessage}</p>
+                <div className="text-center py-6">
+                    <Bot className="h-8 w-8 text-primary animate-bounce mx-auto mb-3 opacity-80" />
+                    <p className="text-sm font-medium text-muted-foreground animate-pulse">{loadingMessage}</p>
                 </div>
             )}
 
             {showFeedback && (
-              <Alert className={`mb-5 p-4 rounded-md ${isCorrect ? "bg-green-50 border-green-400 text-green-800" : "bg-red-50 border-red-400 text-red-800"}`}>
+              <Alert className={`mb-8 p-5 rounded-lg border-l-4 shadow-sm ${isCorrect ? "bg-primary/5 border-l-primary border-y-transparent border-r-transparent text-foreground" : "bg-destructive/5 border-l-destructive border-y-transparent border-r-transparent text-foreground"}`}>
                 <div className="flex items-start">
-                  {isCorrect ? <CheckCircle className="h-6 w-6 text-green-600 mr-3" /> : <XCircle className="h-6 w-6 text-red-600 mr-3" />}
+                  {isCorrect ? <CheckCircle className="h-6 w-6 text-primary mr-4 mt-0.5" /> : <XCircle className="h-6 w-6 text-destructive mr-4 mt-0.5" />}
                   <div className="flex-grow">
-                    <AlertTitle className="font-bold text-lg">
-                      {isCorrect ? "回答正确！" : "回答错误！"}
+                    <AlertTitle className="font-serif font-bold text-lg mb-1">
+                      {isCorrect ? "回答正确" : "回答错误"}
                     </AlertTitle>
-                    <AlertDescription className="text-sm mt-1 space-y-1">
+                    <AlertDescription className="text-base space-y-2 text-muted-foreground leading-relaxed">
                       <p>
-                        {isCorrect ? "太棒了！请进入下一关。" : "请再试一次。"}
+                        {isCorrect ? "非常出色！准确掌握了关键特征。" : "未能匹配到关键特征，请再接再厉。"}
                       </p>
-                      <p className="text-xs font-mono">
-                        提示: 该科的正确特征包括 “{family.traits[currentStepInfo.key]?.join('”, “')}”。
-                      </p>
+                      {!isCorrect && (
+                         <p className="text-sm font-mono mt-2 pt-2 border-t border-border/50 text-foreground/80">
+                          参考答案: {family.traits[currentStepInfo.key]?.join('、')}
+                        </p>
+                      )}
+                      {isCorrect && (
+                        <p className="text-sm font-mono mt-2 pt-2 border-t border-primary/10 text-primary/80">
+                          参考答案: {family.traits[currentStepInfo.key]?.join('、')}
+                        </p>
+                      )}
                     </AlertDescription>
                   </div>
                 </div>
               </Alert>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               {showFeedback ? (
                 isCorrect ? (
-                  <Button onClick={handleNextStep} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-md">
+                  <Button onClick={handleNextStep} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-lg h-14 rounded-lg shadow-md transition-all hover:-translate-y-0.5">
                     {currentStepIndex === totalSteps - 1 ? '查看最终得分' : '进入下一关'}
                   </Button>
                 ) : (
-                  <Button onClick={tryAgain} className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-lg py-3 rounded-md">
+                  <Button onClick={tryAgain} variant="secondary" className="flex-1 text-foreground hover:bg-secondary/80 text-lg h-14 rounded-lg">
                     再试一次
                   </Button>
                 )
               ) : (
-                <Button onClick={handleAnswerSubmit} className="flex-1 bg-green-600 hover:bg-green-700 text-white text-lg py-3 rounded-md" disabled={!userAnswer.trim() || isLoading}>
+                <Button onClick={handleAnswerSubmit} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-lg h-14 rounded-lg shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none" disabled={!userAnswer.trim() || isLoading}>
                   <Sparkles className="h-5 w-5 mr-2" />
                   提交答案
                 </Button>

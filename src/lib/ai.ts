@@ -10,7 +10,8 @@ export interface SemanticSearchResult {
 class AIWorkerManager {
   private worker: Worker | null = null;
   private idCounter = 0;
-  private callbacks = new Map<number, { resolve: Function, reject: Function }>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private callbacks = new Map<number, { resolve: (value: any) => void, reject: (reason?: any) => void }>();
 
   private dataLoadingPromise: Promise<void> | null = null;
   private modelInitializationPromise: Promise<void> | null = null;
@@ -18,6 +19,7 @@ class AIWorkerManager {
   private isDataLoaded = false;
   private isModelInitialized = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private traitsData: any = null;
   private embeddingsBuffer: ArrayBuffer | null = null;
 
@@ -78,6 +80,7 @@ class AIWorkerManager {
     return this.worker;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private send(type: string, payload: any, transferables?: Transferable[]): Promise<any> {
     const id = this.idCounter++;
     const worker = this.getWorker();

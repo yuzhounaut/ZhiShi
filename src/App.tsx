@@ -33,7 +33,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/quiz" element={<QuizSelectionPage />} /> {/* Changed to QuizSelectionPage */}
           <Route path="/quiz/:familyId" element={<Quiz />} />
-          <Route path="/identify" element={<PlantIdentifier />} />
+          <Route path="/identifier" element={<PlantIdentifier />} />
           <Route path="/image-quiz" element={<ImageQuiz />} />
           <Route path="/encyclopedia" element={<Navigate to="/encyclopedia/families" replace />} />
           <Route path="/encyclopedia/families" element={<Encyclopedia />} />
