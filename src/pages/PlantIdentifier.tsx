@@ -86,7 +86,7 @@ const PlantIdentifier = () => {
       });
 
       // Split query into segments for multi-trait matching
-      const querySegments = userQuery.split(/[。；,，\n]/).map(s => s.trim()).filter(Boolean);
+      const querySegments = userQuery.split(/[。；,，\n\s]+/).map(s => s.trim()).filter(Boolean);
 
       if (querySegments.length === 0) {
         setIsLoading(false);
@@ -116,7 +116,7 @@ const PlantIdentifier = () => {
       setProgress(95);
 
       // For each family, we want to find how well it matches ALL query segments
-      const familyScores = new Map<string, { totalScore: number, matches: string[] }>();
+      const familyScores = new Map<string, { validSegmentCount: number, totalScore: number, matches: string[] }>();
 
       batchResults.forEach((queryResult, qIdx) => {
         const segment = querySegments[qIdx];
@@ -137,24 +137,24 @@ const PlantIdentifier = () => {
         });
 
         bestScoresPerFamily.forEach((data, familyId) => {
-          if (!familyScores.has(familyId)) {
-            familyScores.set(familyId, { totalScore: 0, matches: [] });
-          }
-          const current = familyScores.get(familyId)!;
-          current.totalScore += data.score;
-          // We pick the best matching trait for each query segment to show in UI
-          if (data.score > 0.6) {
-             current.matches.push(data.text);
+          // To implement AND logic, each segment must have a score >= 0.8
+          if (data.score >= 0.8) {
+            if (!familyScores.has(familyId)) {
+              familyScores.set(familyId, { validSegmentCount: 0, totalScore: 0, matches: [] });
+            }
+            const current = familyScores.get(familyId)!;
+            current.validSegmentCount += 1;
+            current.totalScore += data.score;
+            current.matches.push(data.text);
           }
         });
       });
 
       const finalResults: AIIdentificationResultItem[] = [];
       familyScores.forEach((data, familyId) => {
-        const avgScore = data.totalScore / querySegments.length;
-
-        // Only show results with a reasonable average matching score
-        if (avgScore > 0.8) {
+        // Must match ALL query segments with score >= 0.8
+        if (data.validSegmentCount === querySegments.length) {
+          const avgScore = data.totalScore / querySegments.length;
           const familyInfo = plantFamilies.find(pf => pf.id === familyId);
           finalResults.push({
             familyId: familyId,
@@ -169,7 +169,8 @@ const PlantIdentifier = () => {
       });
 
       finalResults.sort((a, b) => b.aiScore - a.aiScore);
-      const topResults = finalResults.slice(0, 10);
+      // Remove top 10 limit to show all matched results
+      const topResults = finalResults;
 
       setProgress(100);
       // Small delay to show 100% completion
