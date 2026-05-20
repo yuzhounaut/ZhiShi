@@ -137,8 +137,8 @@ const PlantIdentifier = () => {
         });
 
         bestScoresPerFamily.forEach((data, familyId) => {
-          // To implement AND logic, each segment must have a score >= 0.66
-          if (data.score >= 0.66) {
+          // To implement AND logic, each segment must have a score >= 0.75
+          if (data.score >= 0.75) {
             if (!familyScores.has(familyId)) {
               familyScores.set(familyId, { validSegmentCount: 0, totalScore: 0, matches: [] });
             }
@@ -152,7 +152,7 @@ const PlantIdentifier = () => {
 
       const finalResults: AIIdentificationResultItem[] = [];
       familyScores.forEach((data, familyId) => {
-        // Must match ALL query segments with score >= 0.66
+        // Must match ALL query segments with score >= 0.75
         if (data.validSegmentCount === querySegments.length) {
           const avgScore = data.totalScore / querySegments.length;
           const familyInfo = plantFamilies.find(pf => pf.id === familyId);
