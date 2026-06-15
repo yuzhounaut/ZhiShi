@@ -3,6 +3,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import Quiz from './pages/Quiz';
 import ImageQuiz from './pages/ImageQuiz';
@@ -29,20 +30,23 @@ const App = () => {
       <Toaster />
       <BrowserRouter>
         <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/quiz" element={<QuizSelectionPage />} /> {/* Changed to QuizSelectionPage */}
-          <Route path="/quiz/:familyId" element={<Quiz />} />
-          <Route path="/identifier" element={<PlantIdentifier />} />
-          <Route path="/image-quiz" element={<ImageQuiz />} />
-          <Route path="/encyclopedia" element={<Navigate to="/encyclopedia/families" replace />} />
-          <Route path="/encyclopedia/families" element={<Encyclopedia />} />
-          <Route path="/encyclopedia/families/:familyId" element={<Encyclopedia />} />
-          <Route path="/encyclopedia/atlas" element={<Atlas />} />
-          <Route path="/encyclopedia/atlas/item/:itemId" element={<Atlas />} />
-          <Route path="/encyclopedia/atlas/*" element={<Atlas />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="flex flex-col min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/quiz" element={<QuizSelectionPage />} /> {/* Changed to QuizSelectionPage */}
+            <Route path="/quiz/:familyId" element={<Quiz />} />
+            <Route path="/identifier" element={<PlantIdentifier />} />
+            <Route path="/image-quiz" element={<ImageQuiz />} />
+            <Route path="/encyclopedia" element={<Navigate to="/encyclopedia/families" replace />} />
+            <Route path="/encyclopedia/families" element={<Encyclopedia />} />
+            <Route path="/encyclopedia/families/:familyId" element={<Encyclopedia />} />
+            <Route path="/encyclopedia/atlas" element={<Atlas />} />
+            <Route path="/encyclopedia/atlas/item/:itemId" element={<Atlas />} />
+            <Route path="/encyclopedia/atlas/*" element={<Atlas />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Footer />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
